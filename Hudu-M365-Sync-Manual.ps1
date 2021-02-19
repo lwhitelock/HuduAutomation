@@ -4,7 +4,6 @@
 # Based on Scripts from https://www.cyberdrain.com/documenting-with-powershell-using-powershell-to-create-faster-partner-portal/
 # and https://gcits.com/knowledge-base/sync-office-365-tenant-info-itglue/
 #
-########################## Secure App Model Settings ############################
 ##########################          Settings         ############################
 # Get a Hudu API Key from https://yourhududomain.com/admin/api_keys
 $HuduAPIKey = "abcdefght39fdfgfgdg"
