@@ -201,8 +201,11 @@ foreach ($job in $BackupJobs) {
 			
 			}
 			
-						
-			#Make the fields array, no nulls and converted to string
+			# Create the field array for the asset.			
+			# I know this isn't the nicest, but Hudu's API expects the field ID not name and a string for value regardless
+			# of what the target field type is. I decided to keep the powershell module inline with the Hudu API docs and
+			# implemented the Get-HuduAssetLayoutFieldID function to give an easy lookup.
+			
 			$job_fields = @()
 			
 			if ($processedJob.PlanName) {
