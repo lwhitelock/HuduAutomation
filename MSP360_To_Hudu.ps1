@@ -153,7 +153,7 @@ if (!$layout) {
 	$layout = Get-HuduAssetLayouts -name $HuduAssetLayoutName
 	}
 
-$jobsummary = @()
+	[System.Collections.ArrayList]$jobsummary = @()
 
 # Grab the details of backup jobs from MSP360 and loop through them
 $BackupJobs = Get-MBSAPIMonitoring
@@ -201,100 +201,82 @@ foreach ($job in $BackupJobs) {
 			
 			}
 			
-			# Create the field array for the asset.			
-			# I know this isn't the nicest, but Hudu's API expects the field ID not name and a string for value regardless
-			# of what the target field type is. I decided to keep the powershell module inline with the Hudu API docs and
-			# implemented the Get-HuduAssetLayoutFieldID function to give an easy lookup.
-			
-			$job_fields = @()
+						
+			#Make the fields array, no nulls and converted to string
+			[System.Collections.ArrayList]$job_fields = @()
 			
 			if ($processedJob.PlanName) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Plan Name' -asset_layout_id $layout.id)
-					value = $($processedJob.PlanName).toString()
-				}
+				$null = $job_fields.add(@{
+					plan_name = $($processedJob.PlanName).toString()
+				})
 			}
 			if ($processedJob.ComputerName) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Computer Name' -asset_layout_id $layout.id)
-					value = $($processedJob.ComputerName).toString()
-				}
+				$null = $job_fields.add(@{
+					computer_name = $($processedJob.ComputerName).toString()
+				})
 			}
 			if ($processedJob.PlanType) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Plan Type' -asset_layout_id $layout.id)
-					value = $($processedJob.PlanType).toString()
-				}
+				$null = $job_fields.add(@{
+					plan_type = $($processedJob.PlanType).toString()
+				})
 			}
 			if ($processedJob.LastStart) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Last Start' -asset_layout_id $layout.id)
-					value = $($processedJob.LastStart).toString()
-				}
+				$null = $job_fields.add(@{
+					last_Start = $($processedJob.LastStart).toString()
+				})
 			}
 			if ($processedJob.NextStart) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Next Start' -asset_layout_id $layout.id)
-					value = $($processedJob.NextStart).toString()
-				}
+				$null = $job_fields.add(@{
+					next_start = $($processedJob.NextStart).toString()
+				})
 			}
-			$job_fields += @{
-				asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Status' -asset_layout_id $layout.id)
-				value = $($processedJob.Status).toString()
-			}
+			$null = $job_fields.add(@{
+				status = $($processedJob.Status).toString()
+			})
 			if ($processedJob.FilesCopied) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'File Copied' -asset_layout_id $layout.id)
-					value = $($processedJob.FilesCopied).toString()
-				}
+				$null = $job_fields.add(@{
+					file_copied = $($processedJob.FilesCopied).toString()
+				})
 			}
 			if ($processedJob.FilesFailed) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Files Failed' -asset_layout_id $layout.id)
-					value = $($processedJob.FilesFailed).toString()
-				}
+				$null = $job_fields.add(@{
+					files_failed = $($processedJob.FilesFailed).toString()
+				})
 			}
 			if ($processedJob.DataCopied) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Data Copied' -asset_layout_id $layout.id)
-					value = $($processedJob.DataCopied).toString()
-				}
+				$null = $job_fields.add(@{
+					data_copied = $($processedJob.DataCopied).toString()
+				})
 			}
 			if ($processedJob.Duration) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Duration' -asset_layout_id $layout.id)
-					value = $($processedJob.Duration).toString()
-				}
+				$null = $job_fields.add(@{
+					duration = $($processedJob.Duration).toString()
+				})
 			}
 			if ($processedJob.TotalData) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Total Data' -asset_layout_id $layout.id)
-					value = $($processedJob.TotalData).toString()
-				}
+				$null = $job_fields.add(@{
+					total_data = $($processedJob.TotalData).toString()
+				})
 			}
 			if ($processedJob.FilesScanned) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Files Scanned' -asset_layout_id $layout.id)
-					value = $($processedJob.FilesScanned).toString()
-				}
+				$null = $job_fields.add(@{
+					files_scanned = $($processedJob.FilesScanned).toString()
+				})
 			}
 			if ($processedJob.FilesToBackup) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Files to Backup' -asset_layout_id $layout.id)
-					value = $($processedJob.FilesToBackup).toString()
-				}
+				$null = $job_fields.add(@{
+					files_to_backup = $($processedJob.FilesToBackup).toString()
+				})
 			}
 			if ($processedJob.ErrorMessage) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Error Message' -asset_layout_id $layout.id)
-					value = $($processedJob.ErrorMessage).toString()
-				}
+				$null = $job_fields.add(@{
+					error_message = $($processedJob.ErrorMessage).toString()
+				})
 			}
 			if ($detailedReport) {
-				$job_fields += @{
-					asset_layout_field_id = $(Get-HuduAssetLayoutFieldID -name 'Detailed Report' -asset_layout_id $layout.id)
-					value = $($detailedReport).toString()
-				}
+				$null = $job_fields.add(@{
+					detailed_report = $($detailedReport).toString()
+				})
 			}
 					
 			
@@ -307,7 +289,7 @@ foreach ($job in $BackupJobs) {
 			
 			
 			#Check if it already exists
-				$asset = get-huduassets -name $assetName
+				$asset = get-huduassets -name $assetName -assetlayoutid $layout.id -companyid $company.id
 				if ($asset) {
 					$asset = Set-HuduAsset -name $assetName -company_id $company.id -asset_layout_id $layout.id -fields $job_fields -asset_id $asset.id
 					Write-Host "Asset Updated $assetName"
@@ -318,7 +300,7 @@ foreach ($job in $BackupJobs) {
 	
 				$processedJob | add-member -NotePropertyName "asset_slug" -NotePropertyValue $asset.asset.slug
 							
-			$jobsummary += $processedJob
+			$null = $jobsummary.add($processedJob)
 
 	} else {
 	write-host "Company $($job.CompanyName) Not found in Hudu. Please rename in MSP360" -ForegroundColor Red
@@ -358,7 +340,6 @@ if ($createMagicDash) {
 	
 }
 
-
 # Create Global Report Article
 if ($createGlobalReport) {
 	
@@ -377,7 +358,7 @@ if ($createGlobalReport) {
 		}
 		
 		#Check if there is a computer asset we can link to.
-		$computer = get-huduassets -name $job.ComputerName
+		$computer = get-huduassets -name $job.ComputerName -companyid $job.CompanyID
 		if ($computer) {
 			$computerlink = "<a href=`"$($HuduBaseDomain)/a/$($computer.slug)`">$($job.ComputerName)</a>"
 		} else {
@@ -406,8 +387,6 @@ if ($createGlobalReport) {
 	}
 	
 }
-
-	
 	
 		
 
