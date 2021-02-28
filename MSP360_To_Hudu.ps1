@@ -203,80 +203,52 @@ foreach ($job in $BackupJobs) {
 			
 						
 			#Make the fields array, no nulls and converted to string
-			[System.Collections.ArrayList]$job_fields = @()
+			$job_fields = @{}
 			
 			if ($processedJob.PlanName) {
-				$null = $job_fields.add(@{
-					plan_name = $($processedJob.PlanName).toString()
-				})
+				$null = $job_fields.add('plan_name', $($processedJob.PlanName).toString())
 			}
 			if ($processedJob.ComputerName) {
-				$null = $job_fields.add(@{
-					computer_name = $($processedJob.ComputerName).toString()
-				})
+				$null = $job_fields.add('computer_name', $($processedJob.ComputerName).toString())
 			}
 			if ($processedJob.PlanType) {
-				$null = $job_fields.add(@{
-					plan_type = $($processedJob.PlanType).toString()
-				})
+				$null = $job_fields.add('plan_type', $($processedJob.PlanType).toString())
 			}
 			if ($processedJob.LastStart) {
-				$null = $job_fields.add(@{
-					last_Start = $($processedJob.LastStart).toString()
-				})
+				$null = $job_fields.add('last_Start', $($processedJob.LastStart).toString())
 			}
 			if ($processedJob.NextStart) {
-				$null = $job_fields.add(@{
-					next_start = $($processedJob.NextStart).toString()
-				})
+				$null = $job_fields.add('next_start', $($processedJob.NextStart).toString())
 			}
-			$null = $job_fields.add(@{
-				status = $($processedJob.Status).toString()
-			})
+			
+			$null = $job_fields.add('status', $($processedJob.Status).toString())
+			
 			if ($processedJob.FilesCopied) {
-				$null = $job_fields.add(@{
-					file_copied = $($processedJob.FilesCopied).toString()
-				})
+				$null = $job_fields.add('file_copied', $($processedJob.FilesCopied).toString())
 			}
 			if ($processedJob.FilesFailed) {
-				$null = $job_fields.add(@{
-					files_failed = $($processedJob.FilesFailed).toString()
-				})
+				$null = $job_fields.add('files_failed', $($processedJob.FilesFailed).toString())
 			}
 			if ($processedJob.DataCopied) {
-				$null = $job_fields.add(@{
-					data_copied = $($processedJob.DataCopied).toString()
-				})
+				$null = $job_fields.add('data_copied', $($processedJob.DataCopied).toString())
 			}
 			if ($processedJob.Duration) {
-				$null = $job_fields.add(@{
-					duration = $($processedJob.Duration).toString()
-				})
+				$null = $job_fields.add('duration', $($processedJob.Duration).toString())
 			}
 			if ($processedJob.TotalData) {
-				$null = $job_fields.add(@{
-					total_data = $($processedJob.TotalData).toString()
-				})
+				$null = $job_fields.add('total_data', $($processedJob.TotalData).toString())
 			}
 			if ($processedJob.FilesScanned) {
-				$null = $job_fields.add(@{
-					files_scanned = $($processedJob.FilesScanned).toString()
-				})
+				$null = $job_fields.add('files_scanned', $($processedJob.FilesScanned).toString())
 			}
 			if ($processedJob.FilesToBackup) {
-				$null = $job_fields.add(@{
-					files_to_backup = $($processedJob.FilesToBackup).toString()
-				})
+				$null = $job_fields.add('files_to_backup', $($processedJob.FilesToBackup).toString())
 			}
 			if ($processedJob.ErrorMessage) {
-				$null = $job_fields.add(@{
-					error_message = $($processedJob.ErrorMessage).toString()
-				})
+				$null = $job_fields.add('error_message', $($processedJob.ErrorMessage).toString())
 			}
 			if ($detailedReport) {
-				$null = $job_fields.add(@{
-					detailed_report = $($detailedReport).toString()
-				})
+				$null = $job_fields.add('detailed_report', $($processedJob).toString())
 			}
 					
 			
