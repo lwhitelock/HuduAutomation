@@ -1,5 +1,6 @@
 # Based on the original script by Kelvin Tegelaar https://github.com/KelvinTegelaar/AutomaticDocumentation
 #####################################################################
+#
 # Active Directory Details to Hudu
 #
 # Get a Hudu API Key from https://yourhududomain.com/admin/api_keys
