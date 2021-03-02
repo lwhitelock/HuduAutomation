@@ -271,7 +271,7 @@ $AssetLayoutFields = @(
 
 $Company = Get-HuduCompanies -name $CompanyName
 if ($company) {	
-	#Upload data to IT-Glue. We try to match the Server name to current computer name.	
+	#Upload data to Hudu
 	$Asset = Get-HuduAssets -name $RawAD.ForestName -companyid $company.id
 	
 	#If the Asset does not exist, we edit the body to be in the form of a new asset, if not, we just upload.
