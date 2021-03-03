@@ -272,7 +272,7 @@ $AssetLayoutFields = @(
 $Company = Get-HuduCompanies -name $CompanyName
 if ($company) {	
 	#Upload data to Hudu
-	$Asset = Get-HuduAssets -name $RawAD.ForestName -companyid $company.id
+	$Asset = Get-HuduAssets -name $RawAD.ForestName -companyid $company.id -asset_layout_id $layout.id
 	
 	#If the Asset does not exist, we edit the body to be in the form of a new asset, if not, we just upload.
 	if (!$Asset) {
