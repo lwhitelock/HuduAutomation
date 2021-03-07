@@ -173,7 +173,7 @@ foreach ($site in $sites) {
 		$LoadHTML = ($device.sys_stats | convertto-html -as list -frag | out-string)
 		$ResourceHTML = ($device.'system-stats' | convertto-html -as list -frag | out-string)
 		
-		$StatsHTML = $LoadHTML + $ResourceHTML
+		$StatsHTML = $ResourceHTML + $LoadHTML
 		
 		$model = ($unifiAllModels | where-object {$_.c -eq $device.model} | select n).n
 		
