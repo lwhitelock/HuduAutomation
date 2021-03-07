@@ -24,6 +24,7 @@ if (Get-Module -ListAvailable -Name HuduAPI) {
 		Import-Module HuduAPI
 	}
   
+
 #Set Hudu logon information
 New-HuduAPIKey $HuduAPIKey
 New-HuduBaseUrl $HuduBaseDomain
@@ -56,12 +57,11 @@ $credential = New-Object System.Management.Automation.PSCredential($ApplicationI
 $aadGraphToken = New-PartnerAccessToken -ApplicationId $ApplicationId -Credential $credential -RefreshToken $refreshToken -Scopes 'https://graph.windows.net/.default' -ServicePrincipal -Tenant $tenantID
 $graphToken = New-PartnerAccessToken -ApplicationId $ApplicationId -Credential $credential -RefreshToken $refreshToken -Scopes 'https://graph.microsoft.com/.default' -ServicePrincipal -Tenant $tenantID
 Connect-MsolService -AdGraphAccessToken $aadGraphToken.AccessToken -MsGraphAccessToken $graphToken.AccessToken
- 
 $customers = Get-MsolPartnerContract -All
 
 foreach ($customer in $customers) {
 	#Check if customer should be excluded
-	if (-Not ($customerExclude -contains $customer.DisplayName)){
+	if (-Not ($customerExclude -contains $customer.Name)){
 		#First lets check for the company
 		#Check if they are in Hudu before doing any unnessisary work
 		$defaultdomain = $customer.DefaultDomainName
@@ -97,22 +97,32 @@ foreach ($customer in $customers) {
 						'actions'   = ($AuditData | select-object CreationTime, Operation, ClientIP, UserID, SiteURL, SourceFilename, UserAgent | convertto-html -Fragment | Out-String)
 					}
 					
-					write-output "             Uploading O365 guest $($guest.userprincipalname) into Hudu"
-					$companyid = $hududomain.company_id
+			#end of commands
+			
+			
+			write-output "Uploading O365 guest $($guest.userprincipalname) into Hudu"
+			$companyid = $hududomain.company_id
+			
+			#Swap out # as Hudu doesn't like it when searching
+			$AssetName = $guest.userprincipalname -replace "#EXT#", "-EXT"
+			
 			#Check if there is already an asset	
-			$Asset = Get-HuduAssets -name $guest.userprincipalname -companyid $companyid -assetlayoutid $Layout.id
+			$Asset = Get-HuduAssets -name $AssetName -companyid $companyid -assetlayoutid $Layout.id
 	
 			#If the Asset does not exist, we edit the body to be in the form of a new asset, if not, we just upload.
 			if (!$Asset) {
 				Write-Host "Creating new Asset"
-				$Asset = New-HuduAsset -name $guest.userprincipalname -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields	
+				$Asset = New-HuduAsset -name $AssetName -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields	
 			}
 			else {
 				Write-Host "Updating Asset"
-				$Asset = Set-HuduAsset -asset_id $Asset.id -name $guest.userprincipalname -company_id $companyid -asset_layout_id $layout.id -fields $AssetFields	
+				$Asset = Set-HuduAsset -asset_id $Asset.id -name $AssetName -company_id $companyid -asset_layout_id $layout.id -fields $AssetFields	
 			}
 				}
 			} 
+			
+			Remove-PSSession $session
+			
 		} else {
 			write-host "https://$defaultdomain Not found in Hudu. Please add as a website under the relevant customer" -ForegroundColor Red
 		}
