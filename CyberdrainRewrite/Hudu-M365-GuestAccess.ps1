@@ -24,7 +24,6 @@ if (Get-Module -ListAvailable -Name HuduAPI) {
 		Import-Module HuduAPI
 	}
   
-If(Get-Module -ListAvailable -Name "PSnmap") {Import-module "PSnmap"} Else { install-module "PSnmap" -Force; import-module "PSnmap"}
 #Set Hudu logon information
 New-HuduAPIKey $HuduAPIKey
 New-HuduBaseUrl $HuduBaseDomain
