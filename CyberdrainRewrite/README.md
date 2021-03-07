@@ -4,3 +4,6 @@ I also recommend you check out Kelvins blog for more details on them https://www
 
 
 <strong>Note:</strong> These scripts are intended as examples and you should convert them to work with your own RMM or toolset. Primarily do not store any of your API Keys or tokens in the script itself and then leave them sitting on desktops or servers.
+
+My blog post with more details can be found here https://mspp.io/cyberdrain-automatic-documentation-scripts-to-hudu/
+Please make sure you update to the latest version of the HuduAPI Powershell module.
