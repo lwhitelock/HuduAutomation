@@ -1,5 +1,7 @@
 # Based on the original script by Kelvin Tegelaar https://github.com/KelvinTegelaar/AutomaticDocumentation
 #####################################################################
+# Run this Script after Hudu-Unifi-Documentation.ps1
+#
 # Get a Hudu API Key from https://yourhududomain.com/admin/api_keys
 $HuduAPIKey = "abcdefgh123456788"
 # Set the base domain of your Hudu instance without a trailing /
