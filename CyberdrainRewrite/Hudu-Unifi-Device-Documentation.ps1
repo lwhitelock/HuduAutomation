@@ -189,7 +189,7 @@ foreach ($site in $sites) {
 		$devicename = $device.name
 		}
 		
-		
+		$UnifiRoot = $UnifiBaseUri.trim("/api")
 	
 		$AssetFields = @{
 					'device_name'  		= $device.name
