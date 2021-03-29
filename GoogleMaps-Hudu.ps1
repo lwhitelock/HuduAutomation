@@ -221,14 +221,6 @@ foreach ($company in $companies){
 			$parsed_address = $parsed_address -replace "'",""
 		
 			$geocoded = $parsed_address | Get-GeoCoding
-			[pscustomobject]@{
-					address = $parsed_address
-					latitude = $geocoded[0].Latitude
-					longitude = $geocoded[0].Longitude
-					name = $location.name
-					url = $location.url
-					company = $location.company_name
-			}
 			
 			if ($($geocoded[0].Latitude)){
 				$addrObject = [pscustomobject]@{
