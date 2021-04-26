@@ -38,8 +38,6 @@ function Get-ATFieldHash {
 	return $tempHash	
 }
 
-$ErrorActionPreference = "Stop"
-
 #Get the Hudu API Module if not installed
 if (Get-Module -ListAvailable -Name HuduAPI) {
 		Import-Module HuduAPI 
@@ -67,7 +65,7 @@ $headers = @{
 			'Secret' = $AutotaskAPISecret
 			}
 
-$fields = Invoke-RestMethod -method get -uri "https://webservices16.autotask.net/ATServicesRest/V1.0/Tickets/entityInformation/fields" `
+$fields = Invoke-RestMethod -method get -uri "$AutoTaskAPIBase/ATServicesRest/V1.0/Tickets/entityInformation/fields" `
 								-headers $headers -contentType 'application/json'
 								
 
@@ -75,7 +73,7 @@ $fields = Invoke-RestMethod -method get -uri "https://webservices16.autotask.net
 $statusValues = Get-ATFieldHash -name "status" -fieldsIn $fields
 
 if (!$ExcludeStatus) {
-	Write-Host "ExcludeStatus not set please exclude your closed status at least from below"
+	Write-Host "ExcludeStatus not set please exclude your closed statuses at least from below in the format of '[1,5,7,9]'"
 	$statusValues | ft
 }
 
@@ -83,7 +81,7 @@ if (!$ExcludeStatus) {
 $typeValues = Get-ATFieldHash -name "ticketType" -fieldsIn $fields
 
 if (!$ExcludeType) {
-	Write-Host "ExcludeType not set please exclude types from below"
+	Write-Host "ExcludeType not set please exclude types from below in the format of '[1,5,7,9]"
 	$typeValues | ft
 }
 
@@ -91,7 +89,7 @@ if (!$ExcludeType) {
 $queueValues = Get-ATFieldHash -name "queueID" -fieldsIn $fields
 
 if (!$ExcludeType) {
-	Write-Host "ExcludeQueue not set please exclude types from below"
+	Write-Host "ExcludeQueue not set please exclude types from below in the format of '[1,5,7,9]"
 	$queueValues | ft
 }
 
@@ -192,6 +190,9 @@ foreach ($company in $companies){
 		}			
 
 }
+
+if ($CreateAllOverdueTicketsReport -eq $true) {
+
 $articleHTML = [System.Net.WebUtility]::HtmlDecode($($GlobalOverdue | select 'Ticket-Number', 'Company', 'Title', 'Due', 'Last-Update', 'Priority', 'Status' | convertto-html -fragment | out-string))
 $reportdate = Get-Date
 $body = "<h2>Report last updated: $reportDate</h2><figure class=`"table`">$articleHTML</figure>"
@@ -206,3 +207,4 @@ $body = "<h2>Report last updated: $reportDate</h2><figure class=`"table`">$artic
 		$result = New-HuduArticle -name $globalReportName -content $body -folder_id $folderID
 		Write-Host "Created Global Report"
 	}
+}
