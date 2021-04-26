@@ -181,7 +181,9 @@ foreach ($company in $companies){
 			
 			
 			$Huduresult = Set-HuduMagicDash -title "Autotask - Open Tickets" -company_name $(($company.companyName).Trim()) -message $MagicMessage -icon "fas fa-chart-pie" -content $body -shade $shade
-		}			
+		} else {
+			$Huduresult = Set-HuduMagicDash -title "Autotask - Open Tickets" -company_name $(($company.companyName).Trim()) -message "No Open Tickets" -icon "fas fa-chart-pie" -shade "success"
+		}				
 
 }
 if ($CreateAllOverdueTicketsReport -eq $true) {
