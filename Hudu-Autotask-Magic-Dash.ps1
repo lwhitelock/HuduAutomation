@@ -38,7 +38,7 @@ function Get-ATFieldHash {
 	return $tempHash	
 }
 
-
+$ErrorActionPreference = "Stop"
 
 #Get the Hudu API Module if not installed
 if (Get-Module -ListAvailable -Name HuduAPI) {
@@ -67,7 +67,7 @@ $headers = @{
 			'Secret' = $AutotaskAPISecret
 			}
 
-$fields = Invoke-RestMethod -method get -uri "$AutoTaskAPIBase/ATServicesRest/V1.0/Tickets/entityInformation/fields" `
+$fields = Invoke-RestMethod -method get -uri "https://webservices16.autotask.net/ATServicesRest/V1.0/Tickets/entityInformation/fields" `
 								-headers $headers -contentType 'application/json'
 								
 
@@ -75,27 +75,24 @@ $fields = Invoke-RestMethod -method get -uri "$AutoTaskAPIBase/ATServicesRest/V1
 $statusValues = Get-ATFieldHash -name "status" -fieldsIn $fields
 
 if (!$ExcludeStatus) {
-	Write-Host "ExcludeStatus not set please exclude your closed statuses at least from below in the format of '[1,5,7,9]'"
+	Write-Host "ExcludeStatus not set please exclude your closed status at least from below"
 	$statusValues | ft
-	exit
 }
 
 #Get Ticket types
 $typeValues = Get-ATFieldHash -name "ticketType" -fieldsIn $fields
 
 if (!$ExcludeType) {
-	Write-Host "ExcludeType not set please exclude types from below in the format of '[1,5,7,9]"
+	Write-Host "ExcludeType not set please exclude types from below"
 	$typeValues | ft
-	exit
 }
 
 #Get Queue Types
 $queueValues = Get-ATFieldHash -name "queueID" -fieldsIn $fields
 
 if (!$ExcludeType) {
-	Write-Host "ExcludeQueue not set please exclude types from below in the format of '[1,5,7,9]"
+	Write-Host "ExcludeQueue not set please exclude types from below"
 	$queueValues | ft
-	exit
 }
 
 #Get Creator Types
@@ -149,11 +146,11 @@ foreach ($company in $companies){
 		'Company'								=	$company.companyName
 		}	
 	}
-		
+		write-host "Processing $($company.companyName)" -foregroundcolor green
 		if (@($outTickets).count -gt 0) {
-			write-host "Processing $($company.companyName)"
+			
 			$Now = Get-Date
-			$overdue = @($outTickets | where {$([DateTime]::Parse($_.Due)) -lt $now }).count
+			$overdue = @($outTickets | where {$([DateTime]::Parse($_.Due, [cultureinfo]::GetCultureInfo('en-US'))) -lt $now }).count
 			
 			$MagicMessage = "$(@($outTickets).count) Open Tickets"			
 			
@@ -163,9 +160,9 @@ foreach ($company in $companies){
 			if ($overdue -ge 1){
 			$shade = "warning"
 			$MagicMessage = "$overdue / $(@($outTickets).count) Tickets Overdue"
-			$overdueTickets = $outTickets | where {$([DateTime]::Parse($_.Due)) -le $now }
+			$overdueTickets = $outTickets | where {$([DateTime]::Parse($_.Due, [cultureinfo]::GetCultureInfo('en-US'))) -le $now }
 			foreach ($odticket in $overdueTickets) {$null = $GlobalOverdue.add($odticket)}	
-			$outTickets = $outTickets | where {$([DateTime]::Parse($_.Due)) -gt $now }
+			$outTickets = $outTickets | where {$([DateTime]::Parse($_.Due, [cultureinfo]::GetCultureInfo('en-US'))) -gt $now }
 			$overdueHTML = [System.Net.WebUtility]::HtmlDecode(($overdueTickets| select 'Ticket-Number', 'Created', 'Title', 'Due', 'Last-Updater', 'Last-Update', 'Priority', 'Source', 'Status', 'Type', 'Sub-Type', 'Ticket-Type' | convertto-html -fragment | out-string) -replace $TableStylingBad)
 			$goodHTML = [System.Net.WebUtility]::HtmlDecode(($outTickets | select 'Ticket-Number', 'Created', 'Title', 'Due', 'Last-Updater', 'Last-Update', 'Priority', 'Source', 'Status', 'Type', 'Sub-Type', 'Ticket-Type' | convertto-html -fragment | out-string) -replace $TableStylingGood)
 			$body = "<h2>Overdue Tickets:</h2>$overdueHTML<h2>Tickets:</h2>$goodhtml"
@@ -179,14 +176,22 @@ foreach ($company in $companies){
 			}
 			
 			
-			
-			$Huduresult = Set-HuduMagicDash -title "Autotask - Open Tickets" -company_name $(($company.companyName).Trim()) -message $MagicMessage -icon "fas fa-chart-pie" -content $body -shade $shade
+			try {
+			$Huduresult = Set-HuduMagicDash -title "Autotask - Open Tickets" -company_name $(($company.companyName).Trim()) -message $MagicMessage -icon "fas fa-chart-pie" -content $body -shade $shade -ea stop
+			write-host "Magic Dash Set"
+			} catch {
+			Write-Host "$(($company.companyName).Trim()) not found in Hudu or other error occured"
+			}
 		} else {
-			$Huduresult = Set-HuduMagicDash -title "Autotask - Open Tickets" -company_name $(($company.companyName).Trim()) -message "No Open Tickets" -icon "fas fa-chart-pie" -shade "success"
-		}				
+			try {
+			$Huduresult = Set-HuduMagicDash -title "Autotask - Open Tickets" -company_name $(($company.companyName).Trim()) -message "No Open Tickets" -icon "fas fa-chart-pie" -shade "success" -ea stop
+			write-host "Magic Dash Set"
+			} catch {
+				Write-Host "$(($company.companyName).Trim()) not found in Hudu or other error occured"
+			}
+		}			
 
 }
-if ($CreateAllOverdueTicketsReport -eq $true) {
 $articleHTML = [System.Net.WebUtility]::HtmlDecode($($GlobalOverdue | select 'Ticket-Number', 'Company', 'Title', 'Due', 'Last-Update', 'Priority', 'Status' | convertto-html -fragment | out-string))
 $reportdate = Get-Date
 $body = "<h2>Report last updated: $reportDate</h2><figure class=`"table`">$articleHTML</figure>"
@@ -195,10 +200,9 @@ $body = "<h2>Report last updated: $reportDate</h2><figure class=`"table`">$artic
 
 	$article = Get-HuduArticles -name $globalReportName
 	if ($article) {
-		$result = Set-HuduArticle -name $globalReportName -content $body -folder_id $folderID -article_id $article.id
+		$result = Set-HuduArticle -name $globalReportName -content $body -folder_id $folderID -article_id $article.id 
 		Write-Host "Updated Global Report"
 	} else {
 		$result = New-HuduArticle -name $globalReportName -content $body -folder_id $folderID
 		Write-Host "Created Global Report"
 	}
-}
