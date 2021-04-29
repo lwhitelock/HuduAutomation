@@ -188,17 +188,15 @@ foreach ($customer in $customers) {
 		
 		#Create a table to send into Hudu
 		$CustomerLinks = "<div class=`"nasa__content`"> 
-        <div class=`"nasa__block`"><button class=`"button`"><h2><a target=`"_blank`" href=`"https://portal.office.com/Partner/BeginClientSession.aspx?CTID=$($customer.TenantId)&CSDEST=o365admincenter`"><i class=`"fas fa-cogs`">&nbsp;&nbsp;&nbsp;</i>M365 Admin Portal</a></h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`"><h2><a target=`"_blank`" href=`"https://outlook.office365.com/ecp/?rfr=Admin_o365&exsvurl=1&delegatedOrg=$($Customer.DefaultDomainName)`"><i class=`"fas fa-mail-bulk`">&nbsp;&nbsp;&nbsp;</i>Exchange Admin Portal</a></h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`"><h2><a target=`"_blank`" href=`"https://aad.portal.azure.com/$($Customer.DefaultDomainName)`" ><i class=`"fas fa-users-cog`">&nbsp;&nbsp;&nbsp;</i>Azure Active Directory</a></h2></button></div>
-		<div class=`"nasa__block`"><button class=`"button`"><h2><a target=`"_blank`" href=`"https://endpoint.microsoft.com/$($customer.DefaultDomainName)/`"><i class=`"fas fa-laptop`">&nbsp;&nbsp;&nbsp;</i>Endpoint Management</a></h2></button></td></div>
-        
-
-
-		<div class=`"nasa__block`"><button class=`"button`"><h2><a target=`"_blank`" href=`"https://portal.office.com/Partner/BeginClientSession.aspx?CTID=$($Customer.TenantId)&CSDEST=MicrosoftCommunicationsOnline`"><i class=`"fab fa-skype`">&nbsp;&nbsp;&nbsp;</i>Sfb Portal</a></h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`"><h2><a target=`"_blank`" href=`"https://admin.teams.microsoft.com/?delegatedOrg=$($Customer.DefaultDomainName)`"><i class=`"fas fa-users`">&nbsp;&nbsp;&nbsp;</i>Teams Portal</a></h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`"><h2><a target=`"_blank`" href=`"https://portal.azure.com/$($customer.DefaultDomainName)`"><i class=`"fas fa-server`">&nbsp;&nbsp;&nbsp;</i>Azure Portal</a></h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`"><h2><a target=`"_blank`" href=`"https://account.activedirectory.windowsazure.com/usermanagement/multifactorverification.aspx?tenantId=$($Customer.tenantid)&culture=en-us&requestInitiatedContext=users`" ><i class=`"fas fa-key`">&nbsp;&nbsp;&nbsp;</i>MFA Portal (Read Only)</a></h2></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://portal.office.com/Partner/BeginClientSession.aspx?CTID=$($customer.TenantId)&CSDEST=o365admincenter')`"><h2><i class=`"fas fa-cogs`">&nbsp;&nbsp;&nbsp;</i>M365 Admin Portal</h2></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://outlook.office365.com/ecp/?rfr=Admin_o365&exsvurl=1&delegatedOrg=$($Customer.DefaultDomainName)')`"><h2><i class=`"fas fa-mail-bulk`">&nbsp;&nbsp;&nbsp;</i>Exchange Admin Portal</h2></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://aad.portal.azure.com/$($Customer.DefaultDomainName)')`" ><h2><i class=`"fas fa-users-cog`">&nbsp;&nbsp;&nbsp;</i>Azure Active Directory</h2></button></div>
+		<div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://endpoint.microsoft.com/$($customer.DefaultDomainName)/')`"><h2><i class=`"fas fa-laptop`">&nbsp;&nbsp;&nbsp;</i>Endpoint Management</h2></button></td></div>
+									
+		<div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://portal.office.com/Partner/BeginClientSession.aspx?CTID=$($Customer.TenantId)&CSDEST=MicrosoftCommunicationsOnline')`"><h2><i class=`"fab fa-skype`">&nbsp;&nbsp;&nbsp;</i>Sfb Portal</h2></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://admin.teams.microsoft.com/?delegatedOrg=$($Customer.DefaultDomainName)')`"><h2><i class=`"fas fa-users`">&nbsp;&nbsp;&nbsp;</i>Teams Portal</h2></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://portal.azure.com/$($customer.DefaultDomainName)')`"><h2><i class=`"fas fa-server`">&nbsp;&nbsp;&nbsp;</i>Azure Portal</h2></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://account.activedirectory.windowsazure.com/usermanagement/multifactorverification.aspx?tenantId=$($Customer.tenantid)&culture=en-us&requestInitiatedContext=users')`" ><h2><i class=`"fas fa-key`">&nbsp;&nbsp;&nbsp;</i>MFA Portal (Read Only)</h2></button></div>
 		
 		</div>"
 	
