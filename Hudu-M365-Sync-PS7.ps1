@@ -36,21 +36,20 @@ if (Get-Module -ListAvailable -Name HuduAPI) {
 		Install-Module HuduAPI -Force
 		Import-Module HuduAPI
 	}
-#Get the AzureADPreview Module if not installed
+#Get the Hudu API Module if not installed
 if (Get-Module -ListAvailable -Name AzureADPreview) {
 		Import-Module AzureADPreview 
 	} else {
 		Install-Module AzureADPreview -Force
 		Import-Module AzureADPreview
 	}
-#Get the PartnerCentre Module if not installed
+#Get the Hudu API Module if not installed
 if (Get-Module -ListAvailable -Name PartnerCenter) {
 		Import-Module PartnerCenter 
 	} else {
 		Install-Module PartnerCenter -Force
 		Import-Module PartnerCenter
 	}
-	
 
 ####### License Lookup Hash #########
 $LicenseLookup = @{
@@ -175,6 +174,9 @@ $LicenseLookup = @{
 'UNIVERSAL_PRINT_M365' = 'Universal Print'
 }
 
+
+
+
 #Login to Hudu
 New-HuduAPIKey $HuduAPIKey
 New-HuduBaseUrl $HuduBaseDomain
@@ -207,15 +209,15 @@ foreach ($customer in $customers) {
 		
 		#Create a table to send into Hudu
 		$CustomerLinks = "<div class=`"nasa__content`"> 
-        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://portal.office.com/Partner/BeginClientSession.aspx?CTID=$($customer.CustomerContextId)&CSDEST=o365admincenter')`"><h2><i class=`"fas fa-cogs`">&nbsp;&nbsp;&nbsp;</i>M365 Admin Portal</h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://outlook.office365.com/ecp/?rfr=Admin_o365&exsvurl=1&delegatedOrg=$($Customer.DefaultDomainName)')`"><h2><i class=`"fas fa-mail-bulk`">&nbsp;&nbsp;&nbsp;</i>Exchange Admin Portal</h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://aad.portal.azure.com/$($Customer.DefaultDomainName)')`" ><h2><i class=`"fas fa-users-cog`">&nbsp;&nbsp;&nbsp;</i>Azure Active Directory</h2></button></div>
-		<div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://endpoint.microsoft.com/$($customer.DefaultDomainName)/')`"><h2><i class=`"fas fa-laptop`">&nbsp;&nbsp;&nbsp;</i>Endpoint Management</h2></button></td></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://portal.office.com/Partner/BeginClientSession.aspx?CTID=$($customer.CustomerContextId)&CSDEST=o365admincenter')`"><h3><i class=`"fas fa-cogs`">&nbsp;&nbsp;&nbsp;</i>M365 Admin Portal</h3></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://outlook.office365.com/ecp/?rfr=Admin_o365&exsvurl=1&delegatedOrg=$($Customer.DefaultDomainName)')`"><h3><i class=`"fas fa-mail-bulk`">&nbsp;&nbsp;&nbsp;</i>Exchange Admin Portal</h3></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://aad.portal.azure.com/$($Customer.DefaultDomainName)')`" ><h3><i class=`"fas fa-users-cog`">&nbsp;&nbsp;&nbsp;</i>Azure Active Directory</h3></button></div>
+		<div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://endpoint.microsoft.com/$($customer.DefaultDomainName)/')`"><h3><i class=`"fas fa-laptop`">&nbsp;&nbsp;&nbsp;</i>Endpoint Management</h3></button></td></div>
 									
-		<div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://portal.office.com/Partner/BeginClientSession.aspx?CTID=$($Customer.CustomerContextId)&CSDEST=MicrosoftCommunicationsOnline')`"><h2><i class=`"fab fa-skype`">&nbsp;&nbsp;&nbsp;</i>Sfb Portal</h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://admin.teams.microsoft.com/?delegatedOrg=$($Customer.DefaultDomainName)')`"><h2><i class=`"fas fa-users`">&nbsp;&nbsp;&nbsp;</i>Teams Portal</h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://portal.azure.com/$($customer.DefaultDomainName)')`"><h2><i class=`"fas fa-server`">&nbsp;&nbsp;&nbsp;</i>Azure Portal</h2></button></div>
-        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://account.activedirectory.windowsazure.com/usermanagement/multifactorverification.aspx?tenantId=$($Customer.CustomerContextId)&culture=en-us&requestInitiatedContext=users')`" ><h2><i class=`"fas fa-key`">&nbsp;&nbsp;&nbsp;</i>MFA Portal (Read Only)</h2></button></div>
+		<div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://portal.office.com/Partner/BeginClientSession.aspx?CTID=$($Customer.CustomerContextId)&CSDEST=MicrosoftCommunicationsOnline')`"><h3><i class=`"fab fa-skype`">&nbsp;&nbsp;&nbsp;</i>Sfb Portal</h3></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://admin.teams.microsoft.com/?delegatedOrg=$($Customer.DefaultDomainName)')`"><h3><i class=`"fas fa-users`">&nbsp;&nbsp;&nbsp;</i>Teams Portal</h3></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://portal.azure.com/$($customer.DefaultDomainName)')`"><h3><i class=`"fas fa-server`">&nbsp;&nbsp;&nbsp;</i>Azure Portal</h3></button></div>
+        <div class=`"nasa__block`"><button class=`"button`" onclick=`"window.open('https://account.activedirectory.windowsazure.com/usermanagement/multifactorverification.aspx?tenantId=$($Customer.CustomerContextId)&culture=en-us&requestInitiatedContext=users')`" ><h3><i class=`"fas fa-key`">&nbsp;&nbsp;&nbsp;</i>MFA Portal (Read Only)</h3></button></div>
 		
 		</div>"
 		
@@ -289,6 +291,20 @@ foreach ($customer in $customers) {
 			$licenseHTML = $licenseOut | ConvertTo-Html -PreContent $pre -PostContent $post -Fragment | Out-String
 		}
 		
+		# Get all devices from Intune
+		$Header = @{
+			Authorization = "Bearer $($CustGraphToken.AccessToken)"
+		}
+		
+		$graphApiVersion = "v1.0"
+		$Resource = "deviceManagement/managedDevices"
+		$uri = "https://graph.microsoft.com/$graphApiVersion/$Resource"
+		try {
+			$devices = (Invoke-RestMethod -Uri $uri -Headers $Header -Method Get).value
+		} catch {
+			$devices = ""
+		}
+
 
 		# Get the details of each licensed user in the tenant
 		if ($licensedUsers) {
@@ -299,6 +315,7 @@ foreach ($customer in $customers) {
 			$post = "</div>"
 		
 			$OutputUsers = foreach ($user in $licensedUsers) {
+				$userDevices = ($devices | Where-Object {$_.userPrincipalName -eq $user.UserPrincipalName} | Select-Object @{N='Name';E={"<a target='_blank' href=https://endpoint.microsoft.com/$($customer.DefaultDomainName)/#blade/Microsoft_Intune_Devices/DeviceSettingsBlade/overview/mdmDeviceId/$($_.id)>$($_.deviceName) ($($_.operatingSystem))"}}).name -join "<br/>"
 				$aliases = (($user.ProxyAddresses | Where-Object {$_ -cnotmatch "SMTP" -and $_ -notmatch ".onmicrosoft.com"}) -replace "SMTP:", " ") -join "<br/>"
 				$userLicenses = $user.AssignedLicenses.SkuID | ForEach-Object {
 					$UserLic = $_
@@ -314,8 +331,9 @@ foreach ($customer in $customers) {
 				[PSCustomObject]@{
 					"Display Name" = $user.DisplayName
 					"Addresses" = "<strong>$($user.UserPrincipalName)</strong><br/>$aliases"
+					"EPM Devices" = $userDevices
 					"Assigned Licenses" = $userLicenses
-					"Options" = "<a target=`"_blank`" href=https://aad.portal.azure.com/$($Customer.DefaultDomainName)/#blade/Microsoft_AAD_IAM/UserDetailsMenuBlade/Profile/userId/$($user.ObjectId)>View</a>"
+					"Options" = "<a target=`"_blank`" href=https://aad.portal.azure.com/$($Customer.DefaultDomainName)/#blade/Microsoft_AAD_IAM/UserDetailsMenuBlade/Profile/userId/$($user.ObjectId)>Azure AD</a> | <a <a target=`"_blank`" href=https://portal.office.com/Partner/BeginClientSession.aspx?CTID=$($customer.CustomerContextId)&CSDEST=o365admincenter/Adminportal/Home#/users/:/UserDetails/$($user.ObjectId)>M365 Admin</a>"
 				}
 			}
 
@@ -326,12 +344,18 @@ foreach ($customer in $customers) {
 	 
 
 	#Build the output
-	$body = "<div class=`"nasa-block`"><h2>Administration Portals</h2> $CustomerLinks</div> 
+	$body = "<div class='nasa__block'>
+			<header class='nasa__block-header'>
+			<h1><i class='fas fa-cogs icon'></i>Administrative Portals</h1>
+	 		</header>
+			<div>$CustomerLinks</div> 
+			</div>
 			<br />
-			 <div class=`"nasa__content`">
+			<div class=`"nasa__content`">
 			 $detailstable
 			 $licenseHTML
 			 </div>
+			 <br/>
 			 <div class=`"nasa__content`">
 			 $licensedUserHTML
 			 </div>"
