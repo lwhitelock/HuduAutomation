@@ -172,6 +172,7 @@ $LicenseLookup = @{
 'WIN10_VDA_E5' = 'Windows 10 Enterprise E5'
 'WINDOWS_STORE' = 'Windows Store For Business'
 'RMSBASIC' = 'Azure Information Protection Basic'
+'UNIVERSAL_PRINT_M365' = 'Universal Print'
 }
 
 #Login to Hudu
