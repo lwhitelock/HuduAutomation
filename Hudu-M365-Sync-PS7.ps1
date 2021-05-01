@@ -1,3 +1,4 @@
+# Make sure your Partner app has delegated and app API permissions for the graph API DeviceManagementManagedDevices.Read.All with admin permissions granted
 #
 # M365 to Hudu Sync
 # More details can be found here https://mspp.io/microsoft-365-hudu-magic-dash-and-website-sync
