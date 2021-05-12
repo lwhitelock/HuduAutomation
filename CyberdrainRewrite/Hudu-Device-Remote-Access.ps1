@@ -1,3 +1,4 @@
+## Based off original script by Kelvin at Cyberdrain from https://www.cyberdrain.com/documenting-with-powershell-documenting-remote-access/
 ##### Variables
 $CheckTools = "Screenconnect", "RemoteDesktop", "TakeControl", "DattoWebRemote", "Teamviewer"
 $ScreenconnectURL = "https://YourScreenConnectURL.com/access"
