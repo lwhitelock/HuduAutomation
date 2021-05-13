@@ -1,3 +1,6 @@
+#
+# Make sure your Partner app has delegated and app API permissions for the graph API DeviceManagementManagedDevices.Read.All with admin permissions granted
+#
 # Input bindings are passed in via param block.
 param($Timer)
 
