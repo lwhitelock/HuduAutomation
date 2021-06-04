@@ -33,8 +33,9 @@ if ($company) {
 	# Find the asset we are running from
 	$ParentAsset = Get-HuduAssets -primary_serial (get-ciminstance win32_bios).serialnumber
 
-	#If count exists we either got 0 or more than 1 either way lets try to match off name
-	if ($ParentAsset.count) {
+	$ParentCount = ($ParentAsset | Measure-Object).Count
+
+	if ($ParentCount -ne 1) {
 		$ParentAsset = Get-HuduAssets -companyid $company.id -name $ComputerName
 	}
 
