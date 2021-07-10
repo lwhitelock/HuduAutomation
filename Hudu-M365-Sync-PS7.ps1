@@ -37,14 +37,14 @@ if (Get-Module -ListAvailable -Name HuduAPI) {
 		Install-Module HuduAPI -Force
 		Import-Module HuduAPI
 	}
-#Get the Hudu API Module if not installed
+#Get the AzureADPreview if not installed
 if (Get-Module -ListAvailable -Name AzureADPreview) {
 		Import-Module AzureADPreview 
 	} else {
 		Install-Module AzureADPreview -Force
 		Import-Module AzureADPreview
 	}
-#Get the Hudu API Module if not installed
+#Get the PartnerCenter if not installed
 if (Get-Module -ListAvailable -Name PartnerCenter) {
 		Import-Module PartnerCenter 
 	} else {
