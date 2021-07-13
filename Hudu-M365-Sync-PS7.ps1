@@ -28,6 +28,12 @@ $importDomains = $true
 #For imported domains this will set if monitoring is enabled or disabled
 $monitorDomains = $true
 
+#Use a gui to pick clients , or rely on automatic matching.
+$guiPicker = $true
+
+#Set Company.website to the defualt domain
+$SetPublicAddress=$true
+
 ##########################          Settings         ############################
 
 #Get the Hudu API Module if not installed
@@ -205,7 +211,29 @@ foreach ($customer in $customers) {
 	
 	#Check if they are in Hudu before doing any unnessisary work
 	$defaultdomain = $customer.DefaultDomainName
-	$hududomain = Get-HuduWebsites -name "https://$defaultdomain"
+    if ($guiPicker) {
+        $HuduCompanies = Get-HuduCompanies
+        $hududomain = Get-HuduWebsites -name "https://$defaultdomain"
+        if ($($hududomain.id.count) -eq 0) {
+            $CompanyData = ($HuduCompanies | Select-Object -Property Name, Website, ID | sort-object -Property name | out-gridview  -Title "No company name or Domain has been found to match for $defaultdomain. Please pick the corresponding company" -OutputMode Single)		
+            $CompanyData
+            if (($null -ne $CompanyData ) -or ( $CompanyData -ne "") ) {
+                if ($monitorDomains) {
+                    $result = New-HuduWebsite -name "https://$defaultdomain" -notes $HuduNotes -paused "false" -companyid $companydata.id -disabledns "false" -disablessl "false" -disablewhois "false"
+                    write-host "https://$defaultdomain Created in Hudu with Monitoring"  -ForegroundColor Green
+                }
+                else {
+                    $result = New-HuduWebsite -name "https://$defaultdomain" -notes $HuduNotes -paused "true"  -companyid $companydata.id -disabledns "true" -disablessl "true" -disablewhois "true"
+                    write-host "https://$defaultdomain Created in Hudu without Monitoring"  -ForegroundColor Green
+                }
+                $hududomain = Get-HuduWebsites -name "https://$defaultdomain"
+            } else {
+                write-host " No Company selected"
+            }
+        }
+        write-host "Finished assigning $defaultDomain to $(CompanyData.name)"
+    }    
+    $hududomain = Get-HuduWebsites -name "https://$defaultdomain"
 	if ($($hududomain.id.count) -gt 0) {
 		
 		#Create a table to send into Hudu
@@ -379,7 +407,7 @@ foreach ($customer in $customers) {
 						write-host "https://$impdomain Created in Hudu with Monitoring"  -ForegroundColor Green
 					} else {
 						$result = New-HuduWebsite -name "https://$impdomain" -notes $HuduNotes -paused "true" -companyid $company_id -disabledns "true" -disablessl "true" -disablewhois "true"
-						write-host "https://$impdomain Created in Hudu with Monitoring"  -ForegroundColor Green
+						write-host "https://$impdomain Created in Hudu without Monitoring"  -ForegroundColor Green
 					}
 
 				}		
