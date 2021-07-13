@@ -218,7 +218,7 @@ foreach ($customer in $customers) {
             $CompanyData = ($HuduCompanies | Select-Object -Property Name, Website, ID | sort-object -Property name | out-gridview  -Title "No company name or Domain has been found to match for $defaultdomain. Please pick the corresponding company" -OutputMode Single)		
             $CompanyData
             if (($null -ne $CompanyData ) -or ( $CompanyData -ne "") ) {
-                if ($monitorDomains) {
+                if ($monitorDomains -eq $true) {
                     $result = New-HuduWebsite -name "https://$defaultdomain" -notes $HuduNotes -paused "false" -companyid $companydata.id -disabledns "false" -disablessl "false" -disablewhois "false"
                     write-host "https://$defaultdomain Created in Hudu with Monitoring"  -ForegroundColor Green
                 }
