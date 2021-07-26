@@ -515,15 +515,15 @@ foreach ($site in $sites.Elements) {
 
 
     $LinkedDevicesHTML = "<div class='nasa__block'>
-							<header class='nasa__block-header'>
-							<h1><i class='fas fa-info-circle icon'></i>Devices</h1>
-							 </header>
-								<main>
-								<article>
-								$LinkDeviceHTML
-						</article>
-						</main>
-						</div>"
+                            <header class='nasa__block-header'>
+                            <h1><i class='fas fa-info-circle icon'></i>Devices</h1>
+                             </header>
+                                <main>
+                                <article>
+                                $LinkDeviceHTML
+                        </article>
+                        </main>
+                        </div>"
 
 
     $SiteDetailsFormattedHTML = "<div class='nasa__block'>
@@ -538,23 +538,23 @@ foreach ($site in $sites.Elements) {
         </div>"
 
     $body = "<div class='nasa__block'>
-			<header class='nasa__block-header'>
-			<h1><a href=$($SiteAsset.url)><i class='fas fa-wifi icon'></i>$($site.name)</a></h1>
-	 		</header>
+            <header class='nasa__block-header'>
+            <h1><a href=$($SiteAsset.url)><i class='fas fa-wifi icon'></i>$($site.name)</a></h1>
+             </header>
              </div>
              <br/>
-			<div class=`"nasa__content`">
-			$SiteDetailsFormattedHTML
+            <div class=`"nasa__content`">
+            $SiteDetailsFormattedHTML
             $LinkedDevicesHTML
-			 </div>
-			 <br/>
-             <div class='nasa__block'>
-			<header class='nasa__block-header'>
-			<h1><i class='fas fa-exclamation-triangle'></i> Alerts</h1>
-	 		</header>
-			 <div>$AlertsHTML</div>
              </div>
-			 "
+             <br/>
+             <div class='nasa__block'>
+            <header class='nasa__block-header'>
+            <h1><i class='fas fa-exclamation-triangle'></i> Alerts</h1>
+             </header>
+             <div>$AlertsHTML</div>
+             </div>
+             "
     # Create a Magic Dash
     $null = Set-HuduMagicDash -title "Aruba IO - $($site.name)" -company_name $SiteAsset.company_name -message "$UpDevices / $DeviceCount Online" -icon 'fas fa-wifi' -content $body -shade $Shade
 

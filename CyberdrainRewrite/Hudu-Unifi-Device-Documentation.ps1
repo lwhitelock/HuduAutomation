@@ -16,10 +16,10 @@ $UnifiPassword = 'APIUserPassword'
 #####################################################################
 
 if (Get-Module -ListAvailable -Name HuduAPI) {
-	Import-Module HuduAPI
+    Import-Module HuduAPI
 } else {
-	Install-Module HuduAPI -Force
-	Import-Module HuduAPI
+    Install-Module HuduAPI -Force
+    Import-Module HuduAPI
 }
 
 #Set Hudu logon information
@@ -28,80 +28,80 @@ New-HuduBaseUrl $HuduBaseDomain
 
 $SiteLayout = Get-HuduAssetLayouts -name $HuduSiteLayoutName
 if (!$SiteLayout) {
-	Write-Host 'Please run the Hudu-Unifi-Documentation.ps1 first to create the Unifi site layout or check the name in HuduSiteLayoutName'
-	exit
+    Write-Host 'Please run the Hudu-Unifi-Documentation.ps1 first to create the Unifi site layout or check the name in HuduSiteLayoutName'
+    exit
 }
 
 $Layout = Get-HuduAssetLayouts -name $HuduAssetLayoutName
 
 if (!$Layout) {
-	$AssetLayoutFields = @(
-		@{
-			label        = 'Device Name'
-			field_type   = 'Text'
-			show_in_list = 'true'
-			position     = 1
-		},
-		@{
-			label        = 'IP'
-			field_type   = 'Text'
-			show_in_list = 'true'
-			position     = 1
-		},
-		@{
-			label        = 'MAC'
-			field_type   = 'Text'
-			show_in_list = 'true'
-			position     = 1
-		},
-		@{
-			label        = 'Type'
-			field_type   = 'Text'
-			show_in_list = 'true'
-			position     = 1
-		},
-		@{
-			label        = 'Model'
-			field_type   = 'Text'
-			show_in_list = 'true'
-			position     = 1
-		},
-		@{
-			label        = 'Version'
-			field_type   = 'Text'
-			show_in_list = 'true'
-			position     = 1
-		},
-		@{
-			label        = 'Serial Number'
-			field_type   = 'Text'
-			show_in_list = 'true'
-			position     = 1
-		},
-		@{
-			label        = 'Site'
-			field_type   = 'AssetLink'
-			show_in_list = 'true'
-			position     = 1
-			linkable_id  = $SiteLayout.id
-		},
-		@{
-			label        = 'Management URL'
-			field_type   = 'RichText'
-			show_in_list = 'true'
-			position     = 1
-		},
-		@{
-			label        = 'Device Stats'
-			field_type   = 'RichText'
-			show_in_list = 'false'
-			position     = 2
-		}
-	)
+    $AssetLayoutFields = @(
+        @{
+            label        = 'Device Name'
+            field_type   = 'Text'
+            show_in_list = 'true'
+            position     = 1
+        },
+        @{
+            label        = 'IP'
+            field_type   = 'Text'
+            show_in_list = 'true'
+            position     = 1
+        },
+        @{
+            label        = 'MAC'
+            field_type   = 'Text'
+            show_in_list = 'true'
+            position     = 1
+        },
+        @{
+            label        = 'Type'
+            field_type   = 'Text'
+            show_in_list = 'true'
+            position     = 1
+        },
+        @{
+            label        = 'Model'
+            field_type   = 'Text'
+            show_in_list = 'true'
+            position     = 1
+        },
+        @{
+            label        = 'Version'
+            field_type   = 'Text'
+            show_in_list = 'true'
+            position     = 1
+        },
+        @{
+            label        = 'Serial Number'
+            field_type   = 'Text'
+            show_in_list = 'true'
+            position     = 1
+        },
+        @{
+            label        = 'Site'
+            field_type   = 'AssetLink'
+            show_in_list = 'true'
+            position     = 1
+            linkable_id  = $SiteLayout.id
+        },
+        @{
+            label        = 'Management URL'
+            field_type   = 'RichText'
+            show_in_list = 'true'
+            position     = 1
+        },
+        @{
+            label        = 'Device Stats'
+            field_type   = 'RichText'
+            show_in_list = 'false'
+            position     = 2
+        }
+    )
 
-	Write-Host "Creating New Asset Layout $HuduAssetLayoutName"
-	$NewLayout = New-HuduAssetLayout -name $HuduAssetLayoutName -icon 'fas fa-network-wired' -color '#4CAF50' -icon_color '#ffffff' -include_passwords $false -include_photos $false -include_comments $false -include_files $false -fields $AssetLayoutFields
-	$Layout = Get-HuduAssetLayouts -name $HuduAssetLayoutName
+    Write-Host "Creating New Asset Layout $HuduAssetLayoutName"
+    $NewLayout = New-HuduAssetLayout -name $HuduAssetLayoutName -icon 'fas fa-network-wired' -color '#4CAF50' -icon_color '#ffffff' -include_passwords $false -include_photos $false -include_comments $false -include_files $false -fields $AssetLayoutFields
+    $Layout = Get-HuduAssetLayouts -name $HuduAssetLayoutName
 }
 
 
@@ -135,87 +135,87 @@ Write-Host 'Start documentation process.' -ForegroundColor green
 
 
 $UniFiCredentials = @{
-	username = $UnifiUser
-	password = $UnifiPassword
-	remember = $true
+    username = $UnifiUser
+    password = $UnifiPassword
+    remember = $true
 } | ConvertTo-Json
 
 Write-Host 'Logging in to Unifi API.' -ForegroundColor Green
 try {
-	Invoke-RestMethod -Uri "$UnifiBaseUri/login" -Method POST -Body $uniFiCredentials -SessionVariable websession
+    Invoke-RestMethod -Uri "$UnifiBaseUri/login" -Method POST -Body $uniFiCredentials -SessionVariable websession
 } catch {
-	Write-Host "Failed to log in on the Unifi API. Error was: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Failed to log in on the Unifi API. Error was: $($_.Exception.Message)" -ForegroundColor Red
 }
 Write-Host 'Collecting sites from Unifi API.' -ForegroundColor Green
 try {
-	$sites = (Invoke-RestMethod -Uri "$UnifiBaseUri/self/sites" -WebSession $websession).data
+    $sites = (Invoke-RestMethod -Uri "$UnifiBaseUri/self/sites" -WebSession $websession).data
 } catch {
-	Write-Host "Failed to collect the sites. Error was: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Failed to collect the sites. Error was: $($_.Exception.Message)" -ForegroundColor Red
 }
 
 foreach ($site in $sites) {
-	#First we will see if there is an Asset that matches the site name with this Asset Layout
-	Write-Host "Attempting to map $($site.desc)"
-	$SiteAsset = Get-HuduAssets -name $($site.desc) -assetlayoutid $SiteLayout.id
-	if (!$SiteAsset) {
-		Write-Host "A Site in Hudu could not be matched to the site. Please create a blank Unifi site asset (created with the other Unifi Sync script), with a name of `"$($site.desc)`" under the company in Hudu you wish to map this site to." -ForegroundColor Red
-		continue
-	}
+    #First we will see if there is an Asset that matches the site name with this Asset Layout
+    Write-Host "Attempting to map $($site.desc)"
+    $SiteAsset = Get-HuduAssets -name $($site.desc) -assetlayoutid $SiteLayout.id
+    if (!$SiteAsset) {
+        Write-Host "A Site in Hudu could not be matched to the site. Please create a blank Unifi site asset (created with the other Unifi Sync script), with a name of `"$($site.desc)`" under the company in Hudu you wish to map this site to." -ForegroundColor Red
+        continue
+    }
 
-	$Companyid = $SiteAsset.company_id
-
-
-	$unifiDevices = Invoke-RestMethod -Uri "$UnifiBaseUri/s/$($site.name)/stat/device" -WebSession $websession
-	foreach ($device in $unifiDevices.data) {
-
-		$LoadHTML = ($device.sys_stats | ConvertTo-Html -As list -frag | Out-String)
-		$ResourceHTML = ($device.'system-stats' | ConvertTo-Html -As list -frag | Out-String)
-
-		$StatsHTML = $ResourceHTML + $LoadHTML
-
-		$model = ($unifiAllModels | Where-Object { $_.c -eq $device.model } | Select-Object n).n
-
-		if (!$model) {
-			$model = "Unknown - $($device.model)"
-		} else {
-			$model = "$model - $($device.model)"
-		}
-
-		if (!$($device.name)) {
-			$devicename = "$model - $($device.mac)"
-		} else {
-			$devicename = $device.name
-		}
-
-		$UnifiRoot = $UnifiBaseUri.trim('/api')
-
-		$AssetFields = @{
-			'device_name'    = $device.name
-			'ip'             = $device.ip
-			'mac'            = $device.mac
-			'type'           = $device.type
-			'model'          = $model
-			'version'        = $device.version
-			'serial_number'  = $device.serial
-			'site'           = $SiteAsset.id
-			'management_url'	= "<a href=`"$UniFiRoot/manage/site/$($site.name)/devices/list/1/100`" >$UniFiRoot/manage/site/$($site.name)/devices/list/1/100</a>"
-			'device_stats'   = $StatsHTML
-		}
+    $Companyid = $SiteAsset.company_id
 
 
-		Write-Host "Pushing $devicename to Hudu"
-		$AssetName = $devicename
+    $unifiDevices = Invoke-RestMethod -Uri "$UnifiBaseUri/s/$($site.name)/stat/device" -WebSession $websession
+    foreach ($device in $unifiDevices.data) {
 
-		#Check if there is already an asset
-		$Asset = Get-HuduAssets -name $AssetName -companyid $companyid -assetlayoutid $Layout.id
+        $LoadHTML = ($device.sys_stats | ConvertTo-Html -As list -frag | Out-String)
+        $ResourceHTML = ($device.'system-stats' | ConvertTo-Html -As list -frag | Out-String)
 
-		if (!$Asset) {
-			Write-Host 'Creating new Asset'
-			$Asset = New-HuduAsset -name $AssetName -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields
-		} else {
-			Write-Host 'Updating Asset'
-			$Asset = Set-HuduAsset -asset_id $Asset.id -name $AssetName -company_id $companyid -asset_layout_id $layout.id -fields $AssetFields
-		}
-	}
+        $StatsHTML = $ResourceHTML + $LoadHTML
+
+        $model = ($unifiAllModels | Where-Object { $_.c -eq $device.model } | Select-Object n).n
+
+        if (!$model) {
+            $model = "Unknown - $($device.model)"
+        } else {
+            $model = "$model - $($device.model)"
+        }
+
+        if (!$($device.name)) {
+            $devicename = "$model - $($device.mac)"
+        } else {
+            $devicename = $device.name
+        }
+
+        $UnifiRoot = $UnifiBaseUri.trim('/api')
+
+        $AssetFields = @{
+            'device_name'    = $device.name
+            'ip'             = $device.ip
+            'mac'            = $device.mac
+            'type'           = $device.type
+            'model'          = $model
+            'version'        = $device.version
+            'serial_number'  = $device.serial
+            'site'           = $SiteAsset.id
+            'management_url'	= "<a href=`"$UniFiRoot/manage/site/$($site.name)/devices/list/1/100`" >$UniFiRoot/manage/site/$($site.name)/devices/list/1/100</a>"
+            'device_stats'   = $StatsHTML
+        }
+
+
+        Write-Host "Pushing $devicename to Hudu"
+        $AssetName = $devicename
+
+        #Check if there is already an asset
+        $Asset = Get-HuduAssets -name $AssetName -companyid $companyid -assetlayoutid $Layout.id
+
+        if (!$Asset) {
+            Write-Host 'Creating new Asset'
+            $Asset = New-HuduAsset -name $AssetName -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields
+        } else {
+            Write-Host 'Updating Asset'
+            $Asset = Set-HuduAsset -asset_id $Asset.id -name $AssetName -company_id $companyid -asset_layout_id $layout.id -fields $AssetFields
+        }
+    }
 }
 

@@ -10,10 +10,10 @@ $CrewHuAPIToken = 'YourCrewHuAPIToken'
 #####################################################################
 #Get the Hudu API Module if not installed
 if (Get-Module -ListAvailable -Name HuduAPI) {
-	Import-Module HuduAPI
+    Import-Module HuduAPI
 } else {
-	Install-Module HuduAPI -Force
-	Import-Module HuduAPI
+    Install-Module HuduAPI -Force
+    Import-Module HuduAPI
 }
 
 #Set Hudu logon information
@@ -25,28 +25,28 @@ $HuduViewed = Get-HuduActivityLogs -start_date (Get-Date).adddays(-7) | Where-Ob
 $HuduCreated = Get-HuduActivityLogs -start_date (Get-Date).adddays(-7) | Where-Object -filter { $_.action -eq 'created' } | Group-Object user_email | Select-Object @{N = 'identificator'; E = { $_.name } }, @{N = 'value'; E = { $_.count } }
 
 $Viewed = @{
-	'metricToken' = $CrewHuHuduViewedToken
-	'timeframe'   = 'WK'
-	'data'        = $HuduViewed
+    'metricToken' = $CrewHuHuduViewedToken
+    'timeframe'   = 'WK'
+    'data'        = $HuduViewed
 }
 
 $Created = @{
-	'metricToken' = $CrewHuHuduCreatedToken
-	'timeframe'   = 'WK'
-	'data'        = $HuduCreated
+    'metricToken' = $CrewHuHuduCreatedToken
+    'timeframe'   = 'WK'
+    'data'        = $HuduCreated
 }
 
 $ViewedJSON = $Viewed | ConvertTo-Json -Depth 2
 $CreatedJSON = $Created | ConvertTo-Json -Depth 2
 
 Invoke-RestMethod -Method POST -Uri ('https://api.crewhu.com/api/v1/contest/metrics') `
-	-Headers @{'X_CREWHU_APITOKEN' = $CrewHuAPIToken } `
-	-ContentType 'application/json' `
-	-Body $ViewedJSON
+    -Headers @{'X_CREWHU_APITOKEN' = $CrewHuAPIToken } `
+    -ContentType 'application/json' `
+    -Body $ViewedJSON
 
 Invoke-RestMethod -Method POST -Uri ('https://api.crewhu.com/api/v1/contest/metrics') `
-	-Headers @{'X_CREWHU_APITOKEN' = $CrewHuAPIToken } `
-	-ContentType 'application/json' `
-	-Body $CreatedJSON
+    -Headers @{'X_CREWHU_APITOKEN' = $CrewHuAPIToken } `
+    -ContentType 'application/json' `
+    -Body $CreatedJSON
 
 

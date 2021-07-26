@@ -28,146 +28,146 @@ $mailUser = 'user'
 $mailPass = 'pass'
 #####################################################################
 function Send-TeamsAlert {
-	Param (
-		[PSCustomObject]$JSONBody
-	)
+    Param (
+        [PSCustomObject]$JSONBody
+    )
 
-	if ($enableTeamsAlerts) {
+    if ($enableTeamsAlerts) {
 
-		$TeamMessageBody = ConvertTo-Json $JSONBody -Depth 100
+        $TeamMessageBody = ConvertTo-Json $JSONBody -Depth 100
 
-		$parameters = @{
-			'URI'         = $teamsWebhook
-			'Method'      = 'POST'
-			'Body'        = $TeamMessageBody
-			'ContentType' = 'application/json'
-		}
+        $parameters = @{
+            'URI'         = $teamsWebhook
+            'Method'      = 'POST'
+            'Body'        = $TeamMessageBody
+            'ContentType' = 'application/json'
+        }
 
-		$result = Invoke-RestMethod @parameters
+        $result = Invoke-RestMethod @parameters
 
-	}
+    }
 }
 
 function Send-EmailAlert {
-	Param (
-		[string]$body,
-		[string]$mailSubject
-	)
-	if ($enableEmailAlerts) {
-		$password = ConvertTo-SecureString $mailPass -AsPlainText -Force
-		$mailcred = New-Object System.Management.Automation.PSCredential ($mailUser, $password)
+    Param (
+        [string]$body,
+        [string]$mailSubject
+    )
+    if ($enableEmailAlerts) {
+        $password = ConvertTo-SecureString $mailPass -AsPlainText -Force
+        $mailcred = New-Object System.Management.Automation.PSCredential ($mailUser, $password)
 
-		$sendMailParams = @{
-			From       = $mailFrom
-			To         = $mailTo
-			Subject    = $mailSubject
-			Body       = $body
-			SMTPServer = $mailServer
-			UseSsl     = $mailUseSSL
-			Credential = $mailcred
-		}
+        $sendMailParams = @{
+            From       = $mailFrom
+            To         = $mailTo
+            Subject    = $mailSubject
+            Body       = $body
+            SMTPServer = $mailServer
+            UseSsl     = $mailUseSSL
+            Credential = $mailcred
+        }
 
 
-		Send-MailMessage @sendMailParams -BodyAsHtml
-	}
+        Send-MailMessage @sendMailParams -BodyAsHtml
+    }
 }
 
 function Check-PermChange {
-	Param (
-		[string]$currentPerm = '',
-		[string]$newPerm = '',
-		[string]$permType = '',
-		[string]$appName = '',
-		[string]$companyName = ''
-	)
-	$Comp = Compare-Object -ReferenceObject $($currentPerm -split "`n") -DifferenceObject $($newPerm -split "`n")
-	if ($Comp) {
-		# Send Teams Alert
-		$removed = ($Comp | Where-Object -filter { $_.SideIndicator -eq '<=' }).InputObject | Out-String
-		$newperms = ($Comp | Where-Object -filter { $_.SideIndicator -eq '=>' }).InputObject | Out-String
+    Param (
+        [string]$currentPerm = '',
+        [string]$newPerm = '',
+        [string]$permType = '',
+        [string]$appName = '',
+        [string]$companyName = ''
+    )
+    $Comp = Compare-Object -ReferenceObject $($currentPerm -split "`n") -DifferenceObject $($newPerm -split "`n")
+    if ($Comp) {
+        # Send Teams Alert
+        $removed = ($Comp | Where-Object -filter { $_.SideIndicator -eq '<=' }).InputObject | Out-String
+        $newperms = ($Comp | Where-Object -filter { $_.SideIndicator -eq '=>' }).InputObject | Out-String
 
-		$outText = ''
-		if ($removed) {
-			$outText = "<h3>Removed Permissions</h3><table>$removed</table>"
-		}
-		if ($newperms) {
-			$outText = "$outText<h3>New Permissions</h3><table>$newperms</table>"
-		}
+        $outText = ''
+        if ($removed) {
+            $outText = "<h3>Removed Permissions</h3><table>$removed</table>"
+        }
+        if ($newperms) {
+            $outText = "$outText<h3>New Permissions</h3><table>$newperms</table>"
+        }
 
-		$JSONBody = [PSCustomObject][Ordered]@{
-			'@type'      = 'MessageCard'
-			'@context'   = 'http://schema.org/extensions'
-			'summary'    = "$companyName - $appName - Azure AD App $permType permission change detected"
-			'themeColor' = '0078D7'
-			'sections'   = @(
-				@{
-					'activityTitle' = "$companyName - $appName - Azure AD App $permType permission change detected"
-					'markdown'      = $true
-				},
-				@{
-					'startGroup' = $true
-					'text'       = $outText
+        $JSONBody = [PSCustomObject][Ordered]@{
+            '@type'      = 'MessageCard'
+            '@context'   = 'http://schema.org/extensions'
+            'summary'    = "$companyName - $appName - Azure AD App $permType permission change detected"
+            'themeColor' = '0078D7'
+            'sections'   = @(
+                @{
+                    'activityTitle' = "$companyName - $appName - Azure AD App $permType permission change detected"
+                    'markdown'      = $true
+                },
+                @{
+                    'startGroup' = $true
+                    'text'       = $outText
 
-				}
-			)
-		}
+                }
+            )
+        }
 
-		Send-TeamsAlert -JSONBody $JSONBody
-
-
-
-		$oldVal = ($Comp | Where-Object -filter { $_.SideIndicator -eq '<=' }).InputObject | Out-String
-		$newVal = ($Comp | Where-Object -filter { $_.SideIndicator -eq '=>' }).InputObject | Out-String
-		$mailSubject = "$companyName - $appName - Azure AD App $permType permission change detected"
-		$body = "
-				<style>
-				table{
-					border-collapse: collapse;
-					margin: 5px 0;
-					font-size: 0.8em;
-					font-family: sans-serif;
-					min-width: 400px;
-					box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-				}
-				h2, p{
-					font-size: 0.8em;
-					font-family: sans-serif;
-				}
-				th, td {
-					padding: 5px 5px;
-					max-width: 400px;
-					width:auto;
-				}
-				thead tr {
-					background-color: #009879;
-					color: #ffffff;
-					text-align: left;
-				}
-				tr {
-					border-bottom: 1px solid #dddddd;
-				}
-				tr:nth-of-type(even) {
-					background-color: #f3f3f3;
-				}
-				</style>
-				<h3>$mailSubject</h3>
-				$outText
-				</table>
-				"
+        Send-TeamsAlert -JSONBody $JSONBody
 
 
-		Send-EmailAlert -mailSubject $mailSubject -body $body
 
-	}
+        $oldVal = ($Comp | Where-Object -filter { $_.SideIndicator -eq '<=' }).InputObject | Out-String
+        $newVal = ($Comp | Where-Object -filter { $_.SideIndicator -eq '=>' }).InputObject | Out-String
+        $mailSubject = "$companyName - $appName - Azure AD App $permType permission change detected"
+        $body = "
+                <style>
+                table{
+                    border-collapse: collapse;
+                    margin: 5px 0;
+                    font-size: 0.8em;
+                    font-family: sans-serif;
+                    min-width: 400px;
+                    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+                }
+                h2, p{
+                    font-size: 0.8em;
+                    font-family: sans-serif;
+                }
+                th, td {
+                    padding: 5px 5px;
+                    max-width: 400px;
+                    width:auto;
+                }
+                thead tr {
+                    background-color: #009879;
+                    color: #ffffff;
+                    text-align: left;
+                }
+                tr {
+                    border-bottom: 1px solid #dddddd;
+                }
+                tr:nth-of-type(even) {
+                    background-color: #f3f3f3;
+                }
+                </style>
+                <h3>$mailSubject</h3>
+                $outText
+                </table>
+                "
+
+
+        Send-EmailAlert -mailSubject $mailSubject -body $body
+
+    }
 }
 
 
 #Get the Hudu API Module if not installed
 if (Get-Module -ListAvailable -Name HuduAPI) {
-	Import-Module HuduAPI
+    Import-Module HuduAPI
 } else {
-	Install-Module HuduAPI -Force
-	Import-Module HuduAPI
+    Install-Module HuduAPI -Force
+    Import-Module HuduAPI
 }
 
 #Set Hudu logon information
@@ -177,54 +177,54 @@ New-HuduBaseUrl $HuduBaseDomain
 $Layout = Get-HuduAssetLayouts -name $HuduAssetLayoutName
 
 if (!$Layout) {
-	$AssetLayoutFields = @(
-		@{
-			label        = 'Logo'
-			field_type   = 'RichText'
-			show_in_list = 'false'
-			position     = 1
-		},
-		@{
-			label        = 'Homepage'
-			field_type   = 'RichText'
-			show_in_list = 'false'
-			position     = 2
-		},
-		@{
-			label        = 'Publisher Domain'
-			field_type   = 'RichText'
-			show_in_list = 'false'
-			position     = 3
-		},
-		@{
-			label        = 'OAuth2 Permissions'
-			field_type   = 'RichText'
-			show_in_list = 'false'
-			position     = 4
-		},
-		@{
-			label        = 'App Permissions'
-			field_type   = 'RichText'
-			show_in_list = 'false'
-			position     = 5
-		},
-		@{
-			label        = 'Delegated Permissions'
-			field_type   = 'RichText'
-			show_in_list = 'false'
-			position     = 6
-		},
-		@{
-			label        = 'Granted Date'
-			field_type   = 'Text'
-			show_in_list = 'false'
-			position     = 7
-		}
-	)
+    $AssetLayoutFields = @(
+        @{
+            label        = 'Logo'
+            field_type   = 'RichText'
+            show_in_list = 'false'
+            position     = 1
+        },
+        @{
+            label        = 'Homepage'
+            field_type   = 'RichText'
+            show_in_list = 'false'
+            position     = 2
+        },
+        @{
+            label        = 'Publisher Domain'
+            field_type   = 'RichText'
+            show_in_list = 'false'
+            position     = 3
+        },
+        @{
+            label        = 'OAuth2 Permissions'
+            field_type   = 'RichText'
+            show_in_list = 'false'
+            position     = 4
+        },
+        @{
+            label        = 'App Permissions'
+            field_type   = 'RichText'
+            show_in_list = 'false'
+            position     = 5
+        },
+        @{
+            label        = 'Delegated Permissions'
+            field_type   = 'RichText'
+            show_in_list = 'false'
+            position     = 6
+        },
+        @{
+            label        = 'Granted Date'
+            field_type   = 'Text'
+            show_in_list = 'false'
+            position     = 7
+        }
+    )
 
-	Write-Host "Creating New Asset Layout $HuduAssetLayoutName"
-	$NewLayout = New-HuduAssetLayout -name $HuduAssetLayoutName -icon 'fas fa-sitemap' -color '#00adef' -icon_color '#ffffff' -include_passwords $false -include_photos $false -include_comments $false -include_files $false -fields $AssetLayoutFields
-	$Layout = Get-HuduAssetLayouts -name $HuduAssetLayoutName
+    Write-Host "Creating New Asset Layout $HuduAssetLayoutName"
+    $NewLayout = New-HuduAssetLayout -name $HuduAssetLayoutName -icon 'fas fa-sitemap' -color '#00adef' -icon_color '#ffffff' -include_passwords $false -include_photos $false -include_comments $false -include_files $false -fields $AssetLayoutFields
+    $Layout = Get-HuduAssetLayouts -name $HuduAssetLayoutName
 }
 
 
@@ -242,203 +242,203 @@ New-HuduBaseUrl $HuduBaseDomain
 
 
 foreach ($Customer in $Customers) {
-	#Check if customer should be excluded
-	if (-Not ($customerExclude -contains $customer.DisplayName)) {
-		$Applications = ''
-		#First lets check for the company
-		#Check if they are in Hudu before doing any unnessisary work
-		$defaultdomain = $customer.DefaultDomainName
-		$hududomain = Get-HuduWebsites -name "https://$defaultdomain"
-		if ($($hududomain.id.count) -gt 0) {
-			Write-Host "Processing $($customer.Displayname)" -ForegroundColor green
-			$CustAadGraphToken = New-PartnerAccessToken -ApplicationId $ApplicationId -Credential $credential -RefreshToken $refreshToken -Scopes 'https://graph.windows.net/.default' -ServicePrincipal -Tenant $customer.CustomerContextId
-			$CustGraphToken = New-PartnerAccessToken -ApplicationId $ApplicationId -Credential $credential -RefreshToken $refreshToken -Scopes 'https://graph.microsoft.com/.default' -ServicePrincipal -Tenant $customer.CustomerContextId
-			Connect-AzureAD -AadAccessToken $CustAadGraphToken.AccessToken -AccountId $upn -MsAccessToken $CustGraphToken.AccessToken -TenantId $customer.CustomerContextId | Out-Null
+    #Check if customer should be excluded
+    if (-Not ($customerExclude -contains $customer.DisplayName)) {
+        $Applications = ''
+        #First lets check for the company
+        #Check if they are in Hudu before doing any unnessisary work
+        $defaultdomain = $customer.DefaultDomainName
+        $hududomain = Get-HuduWebsites -name "https://$defaultdomain"
+        if ($($hududomain.id.count) -gt 0) {
+            Write-Host "Processing $($customer.Displayname)" -ForegroundColor green
+            $CustAadGraphToken = New-PartnerAccessToken -ApplicationId $ApplicationId -Credential $credential -RefreshToken $refreshToken -Scopes 'https://graph.windows.net/.default' -ServicePrincipal -Tenant $customer.CustomerContextId
+            $CustGraphToken = New-PartnerAccessToken -ApplicationId $ApplicationId -Credential $credential -RefreshToken $refreshToken -Scopes 'https://graph.microsoft.com/.default' -ServicePrincipal -Tenant $customer.CustomerContextId
+            Connect-AzureAD -AadAccessToken $CustAadGraphToken.AccessToken -AccountId $upn -MsAccessToken $CustGraphToken.AccessToken -TenantId $customer.CustomerContextId | Out-Null
 
 
-			$Applications = Get-AzureADApplication -All:$true
-			foreach ($app in $Applications) {
-				$allsp = Get-AzureADServicePrincipal -All $true
-				Write-Host "$($app.displayName)" -ForegroundColor green
-				$appName = $app.DisplayName
-				if ($appName) {
+            $Applications = Get-AzureADApplication -All:$true
+            foreach ($app in $Applications) {
+                $allsp = Get-AzureADServicePrincipal -All $true
+                Write-Host "$($app.displayName)" -ForegroundColor green
+                $appName = $app.DisplayName
+                if ($appName) {
 
-					$appsp = Get-AzureADServicePrincipal -All $true | Where-Object { $_.AppId -eq $app.AppId }
+                    $appsp = Get-AzureADServicePrincipal -All $true | Where-Object { $_.AppId -eq $app.AppId }
 
-					$AppDelegatedDate = ''
-					$grantedDate = ''
+                    $AppDelegatedDate = ''
+                    $grantedDate = ''
 
-					if ($appsp.ObjectId) {
-						$AppDelegatedDate = ((Get-AzureADServiceAppRoleAssignedTo -ObjectId $appsp.ObjectId).CreationTimestamp) | Sort-Object { [DateTime]$_ } | Select-Object -First 1 | Out-String
-					}
+                    if ($appsp.ObjectId) {
+                        $AppDelegatedDate = ((Get-AzureADServiceAppRoleAssignedTo -ObjectId $appsp.ObjectId).CreationTimestamp) | Sort-Object { [DateTime]$_ } | Select-Object -First 1 | Out-String
+                    }
 
-					if ($AppDelegatedDate -eq '') {
-						$AppDelegatedDate = 'Unknown'
-					}
+                    if ($AppDelegatedDate -eq '') {
+                        $AppDelegatedDate = 'Unknown'
+                    }
 
-					$DelegatedPermissions = [System.Collections.ArrayList]@()
-					$AppPermissions = [System.Collections.ArrayList]@()
-					$OAuth2Permissions = [System.Collections.ArrayList]@()
-
-
-					foreach ($oauth in $app.Oauth2Permissions) {
-						$perm = $oauth | Select-Object @{N = 'Permission'; E = { $_.value } }, @{N = 'Name'; E = { $_.AdminConsentDisplayName } }, @{N = 'Description'; E = { $_.AdminConsentDescription } }
-						$null = $OAuth2Permissions.add($perm)
-					}
-
-					foreach ($reqperm in $App.requiredResourceAccess) {
-						$sp = $allsp | Where-Object { $_.AppId -eq $reqperm.ResourceAppId }
-						foreach ($permission in $($reqperm.ResourceAccess)) {
-							if ($permission.type -eq 'Scope') {
-								$perm = $sp.Oauth2Permissions | Where-Object { $_.Id -eq $permission.id } | Select-Object @{N = 'Permission'; E = { $_.value } }, @{N = 'Name'; E = { $_.AdminConsentDisplayName } }, @{N = 'Description'; E = { $_.AdminConsentDescription } }
-								$null = $DelegatedPermissions.add($perm)
-
-							}
-							if ($permission.type -eq 'Role') {
-								$perm = $sp.AppRoles | Where-Object { $_.Id -eq $permission.id } | Select-Object @{N = 'Permission'; E = { $_.value } }, @{N = 'Name'; E = { $_.DisplayName } }, @{N = 'Description'; E = { $_.Description } }
-								$null = $AppPermissions.add($perm)
-							}
-
-						}
-					}
+                    $DelegatedPermissions = [System.Collections.ArrayList]@()
+                    $AppPermissions = [System.Collections.ArrayList]@()
+                    $OAuth2Permissions = [System.Collections.ArrayList]@()
 
 
-					$OAuthHTML = ($OAuth2Permissions | ConvertTo-Html -Fragment | Out-String) -replace "[^a-zA-Z0-9. ,&`"-@<>/#_;]", ''
-					$OAuthHTML = $OAuthHTML -replace '&#39;', ''
+                    foreach ($oauth in $app.Oauth2Permissions) {
+                        $perm = $oauth | Select-Object @{N = 'Permission'; E = { $_.value } }, @{N = 'Name'; E = { $_.AdminConsentDisplayName } }, @{N = 'Description'; E = { $_.AdminConsentDescription } }
+                        $null = $OAuth2Permissions.add($perm)
+                    }
 
-					$AppHTML = ($AppPermissions | ConvertTo-Html -Fragment | Out-String) -replace "[^a-zA-Z0-9. ,&`"-@<>/#_;]", ''
-					$AppHTML = $AppHTML -replace '&#39;', ''
+                    foreach ($reqperm in $App.requiredResourceAccess) {
+                        $sp = $allsp | Where-Object { $_.AppId -eq $reqperm.ResourceAppId }
+                        foreach ($permission in $($reqperm.ResourceAccess)) {
+                            if ($permission.type -eq 'Scope') {
+                                $perm = $sp.Oauth2Permissions | Where-Object { $_.Id -eq $permission.id } | Select-Object @{N = 'Permission'; E = { $_.value } }, @{N = 'Name'; E = { $_.AdminConsentDisplayName } }, @{N = 'Description'; E = { $_.AdminConsentDescription } }
+                                $null = $DelegatedPermissions.add($perm)
 
-					$DelegatedHTML = ($DelegatedPermissions | ConvertTo-Html -Fragment | Out-String) -replace "[^a-zA-Z0-9. ,&`"-@<>/#_;]", ''
-					$DelegatedHTML = $DelegatedHTML -replace '&#39;', ''
+                            }
+                            if ($permission.type -eq 'Role') {
+                                $perm = $sp.AppRoles | Where-Object { $_.Id -eq $permission.id } | Select-Object @{N = 'Permission'; E = { $_.value } }, @{N = 'Name'; E = { $_.DisplayName } }, @{N = 'Description'; E = { $_.Description } }
+                                $null = $AppPermissions.add($perm)
+                            }
 
-					if ($($app.AppLogoURL)) {
-						$LogoHTML = "<img src=`"$($app.AppLogoURL)`"></img>"
-					} else {
-						$LogoHTML = ''
-					}
-
-					$AssetFields = @{
-						'logo'                  = $LogoHTML
-						'homepage'              = $($app.Homepage)
-						'publisher_domain'      = $($app.PublisherDomain)
-						'oauth2_permissions'    = $OAuthHTML
-						'app_permissions'       = $AppHTML
-						'delegated_permissions' = $DelegatedHTML
-						'granted_date'          = $AppDelegatedDate
-					}
+                        }
+                    }
 
 
+                    $OAuthHTML = ($OAuth2Permissions | ConvertTo-Html -Fragment | Out-String) -replace "[^a-zA-Z0-9. ,&`"-@<>/#_;]", ''
+                    $OAuthHTML = $OAuthHTML -replace '&#39;', ''
 
-					$companyid = $hududomain.company_id
-					$companyName = $hududomain.company_name
+                    $AppHTML = ($AppPermissions | ConvertTo-Html -Fragment | Out-String) -replace "[^a-zA-Z0-9. ,&`"-@<>/#_;]", ''
+                    $AppHTML = $AppHTML -replace '&#39;', ''
 
-					#Swap out # as Hudu doesn't like it when searching
-					$AssetName = $appName
+                    $DelegatedHTML = ($DelegatedPermissions | ConvertTo-Html -Fragment | Out-String) -replace "[^a-zA-Z0-9. ,&`"-@<>/#_;]", ''
+                    $DelegatedHTML = $DelegatedHTML -replace '&#39;', ''
 
-					#Check if there is already an asset
-					$Asset = Get-HuduAssets -name $AssetName -companyid $companyid -assetlayoutid $Layout.id
+                    if ($($app.AppLogoURL)) {
+                        $LogoHTML = "<img src=`"$($app.AppLogoURL)`"></img>"
+                    } else {
+                        $LogoHTML = ''
+                    }
 
-					#If the Asset does not exist, we edit the body to be in the form of a new asset, if not, we just upload.
-					if (!$Asset) {
-						Write-Host 'Creating new Asset'
-						$outText = ''
-						if (($OAuthHTML | Measure-Object -Line).lines -gt 2) {
-							$outText = "OAuth Permissions: $OAuthHTML"
-						}
-
-						if (($AppHTML | Measure-Object -Line).lines -gt 2) {
-							Write-Host 'AppHTML'
-							$outText = "$outText App Permissions: $AppHTML"
-						}
-
-						if (($DelegatedHTML | Measure-Object -Line).lines -gt 2) {
-							$outText = "$outText Delegated Permissions: $DelegatedHTML"
-						}
-
-						$JSONBody = [PSCustomObject][Ordered]@{
-							'@type'      = 'MessageCard'
-							'@context'   = 'http://schema.org/extensions'
-							'summary'    = "$companyName - $appName - Azure AD - New Application Detected"
-							'themeColor' = '0078D7'
-							'sections'   = @(
-								@{
-									'activityTitle' = "$companyName - $appName - Azure AD: New Application Detected"
-									'markdown'      = $true
-								},
-								@{
-									'startGroup' = $true
-									'text'       = $outText
-
-								}
-							)
-						}
-
-						Send-TeamsAlert -JSONBody $JSONBody
-						Write-Host 'Sent Teams Alert'
-
-
-						$mailSubject = "$companyName - $appName - Azure AD: New Application Detected"
-						$body = "
-							<style>
-							table{
-								border-collapse: collapse;
-								margin: 5px 0;
-								font-size: 0.8em;
-								font-family: sans-serif;
-								min-width: 400px;
-								box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-							}
-							h2, p{
-								font-size: 0.8em;
-								font-family: sans-serif;
-							}
-							th, td {
-								padding: 5px 5px;
-								max-width: 400px;
-								width:auto;
-							}
-							thead tr {
-								background-color: #009879;
-								color: #ffffff;
-								text-align: left;
-							}
-							tr {
-								border-bottom: 1px solid #dddddd;
-							}
-							tr:nth-of-type(even) {
-								background-color: #f3f3f3;
-							}
-							</style>
-							<h3>$mailSubject</h3>
-							$outText
-							"
-
-
-						Send-EmailAlert -mailSubject $mailSubject -body $body
-						Write-Host 'Sent Email Alert'
-
-						$Asset = New-HuduAsset -name $AssetName -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields
-						Write-Host 'Created Asset'
-					} else {
-						$oauth_cur_value = ($Asset.fields | Where-Object -filter { $_.label -eq 'OAuth2 Permissions' }).value
-						$app_cur_value = ($Asset.fields | Where-Object -filter { $_.label -eq 'App Permissions' }).value
-						$del_cur_value = ($Asset.fields | Where-Object -filter { $_.label -eq 'Delegated Permissions' }).value
-
-
-						Check-PermChange -currentPerm $oauth_cur_value -newPerm $OAuthHTML -permType 'OAuth2' -appName $AssetName -companyName $hududomain.company_name
-						Check-PermChange -currentPerm $app_cur_value -newPerm $AppHTML -permType 'App' -appName $AssetName -companyName $hududomain.company_name
-						Check-PermChange -currentPerm $del_cur_value -newPerm $DelegatedHTML -permType 'Delegated' -appName $AssetName -companyName $hududomain.company_name
+                    $AssetFields = @{
+                        'logo'                  = $LogoHTML
+                        'homepage'              = $($app.Homepage)
+                        'publisher_domain'      = $($app.PublisherDomain)
+                        'oauth2_permissions'    = $OAuthHTML
+                        'app_permissions'       = $AppHTML
+                        'delegated_permissions' = $DelegatedHTML
+                        'granted_date'          = $AppDelegatedDate
+                    }
 
 
 
-						Write-Host 'Updating Asset'
-						$Asset = Set-HuduAsset -asset_id $Asset.id -name $AssetName -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields
-					}
-				}
-			}
+                    $companyid = $hududomain.company_id
+                    $companyName = $hududomain.company_name
 
-			Disconnect-AzureAD
-		}
-	}
+                    #Swap out # as Hudu doesn't like it when searching
+                    $AssetName = $appName
+
+                    #Check if there is already an asset
+                    $Asset = Get-HuduAssets -name $AssetName -companyid $companyid -assetlayoutid $Layout.id
+
+                    #If the Asset does not exist, we edit the body to be in the form of a new asset, if not, we just upload.
+                    if (!$Asset) {
+                        Write-Host 'Creating new Asset'
+                        $outText = ''
+                        if (($OAuthHTML | Measure-Object -Line).lines -gt 2) {
+                            $outText = "OAuth Permissions: $OAuthHTML"
+                        }
+
+                        if (($AppHTML | Measure-Object -Line).lines -gt 2) {
+                            Write-Host 'AppHTML'
+                            $outText = "$outText App Permissions: $AppHTML"
+                        }
+
+                        if (($DelegatedHTML | Measure-Object -Line).lines -gt 2) {
+                            $outText = "$outText Delegated Permissions: $DelegatedHTML"
+                        }
+
+                        $JSONBody = [PSCustomObject][Ordered]@{
+                            '@type'      = 'MessageCard'
+                            '@context'   = 'http://schema.org/extensions'
+                            'summary'    = "$companyName - $appName - Azure AD - New Application Detected"
+                            'themeColor' = '0078D7'
+                            'sections'   = @(
+                                @{
+                                    'activityTitle' = "$companyName - $appName - Azure AD: New Application Detected"
+                                    'markdown'      = $true
+                                },
+                                @{
+                                    'startGroup' = $true
+                                    'text'       = $outText
+
+                                }
+                            )
+                        }
+
+                        Send-TeamsAlert -JSONBody $JSONBody
+                        Write-Host 'Sent Teams Alert'
+
+
+                        $mailSubject = "$companyName - $appName - Azure AD: New Application Detected"
+                        $body = "
+                            <style>
+                            table{
+                                border-collapse: collapse;
+                                margin: 5px 0;
+                                font-size: 0.8em;
+                                font-family: sans-serif;
+                                min-width: 400px;
+                                box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+                            }
+                            h2, p{
+                                font-size: 0.8em;
+                                font-family: sans-serif;
+                            }
+                            th, td {
+                                padding: 5px 5px;
+                                max-width: 400px;
+                                width:auto;
+                            }
+                            thead tr {
+                                background-color: #009879;
+                                color: #ffffff;
+                                text-align: left;
+                            }
+                            tr {
+                                border-bottom: 1px solid #dddddd;
+                            }
+                            tr:nth-of-type(even) {
+                                background-color: #f3f3f3;
+                            }
+                            </style>
+                            <h3>$mailSubject</h3>
+                            $outText
+                            "
+
+
+                        Send-EmailAlert -mailSubject $mailSubject -body $body
+                        Write-Host 'Sent Email Alert'
+
+                        $Asset = New-HuduAsset -name $AssetName -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields
+                        Write-Host 'Created Asset'
+                    } else {
+                        $oauth_cur_value = ($Asset.fields | Where-Object -filter { $_.label -eq 'OAuth2 Permissions' }).value
+                        $app_cur_value = ($Asset.fields | Where-Object -filter { $_.label -eq 'App Permissions' }).value
+                        $del_cur_value = ($Asset.fields | Where-Object -filter { $_.label -eq 'Delegated Permissions' }).value
+
+
+                        Check-PermChange -currentPerm $oauth_cur_value -newPerm $OAuthHTML -permType 'OAuth2' -appName $AssetName -companyName $hududomain.company_name
+                        Check-PermChange -currentPerm $app_cur_value -newPerm $AppHTML -permType 'App' -appName $AssetName -companyName $hududomain.company_name
+                        Check-PermChange -currentPerm $del_cur_value -newPerm $DelegatedHTML -permType 'Delegated' -appName $AssetName -companyName $hududomain.company_name
+
+
+
+                        Write-Host 'Updating Asset'
+                        $Asset = Set-HuduAsset -asset_id $Asset.id -name $AssetName -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields
+                    }
+                }
+            }
+
+            Disconnect-AzureAD
+        }
+    }
 }
