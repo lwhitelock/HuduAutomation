@@ -168,7 +168,7 @@ $LicenseLookup = @{
 
 import-module HuduAPI
 import-module AzureAD.Standard.Preview
-Import-module PartnerCenter -UseWindowsPowerShell
+Import-module PartnerCenterLW
 
 
 #Login to Hudu
