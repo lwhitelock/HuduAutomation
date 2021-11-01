@@ -203,10 +203,7 @@ if ($company) {
 	
 		$companyid = $ParentAsset.company_id
 	
-		$AssetFields | ConvertTo-Json |  out-file c:\temp\json.txt
-		Write-Host "New-HuduAsset -name $AssetName -company_id $companyid -asset_layout_id $($Layout.id) -fields $AssetFields	"
-	
-	
+
 	
 		write-host "Documenting to Hudu"  -ForegroundColor Green
 		$Asset = Get-HuduAssets -name $AssetName -companyid $companyid -assetlayoutid $Layout.id
