@@ -114,6 +114,8 @@ foreach ($site in $sites) {
 	}
 	
 		$unifiDevices = Invoke-RestMethod -Uri "$UnifiBaseUri/s/$($site.name)/stat/device" -WebSession $websession
+		#Get Data on Wifi Configs
+		$wifiData = Invoke-Restmethod -Uri "$UnifiBaseUri/s/$($site.name)/rest/wlanconf/" -WebSession $websession
 		$UnifiSwitches = $unifiDevices.data | Where-Object { $_.type -contains "usw" }
 		$SwitchPorts = foreach ($unifiswitch in $UnifiSwitches) {
         "<h2>$($unifiswitch.name) - $($unifiswitch.mac)</h2> <table><tr>"
@@ -144,7 +146,9 @@ foreach ($site in $sites) {
  
     $Wifinetworks = $uaps.vap_table | Group-Object Essid
     $wifi = foreach ($Wifinetwork in $Wifinetworks) {
-        $Wifinetwork | Select-object @{n = "SSID"; e = { $_.Name } }, @{n = "Access Points"; e = { $uaps.name -join "`n" } }, @{n = "Channel"; e = { $_.group.channel -join ", " } }, @{n = "Usage"; e = { $_.group.usage | Sort-Object -Unique } }, @{n = "Enabled"; e = { $_.group.up | sort-object -Unique } }
+    	#Get Passphrase info for Wifi
+	$passphrase = ($wifidata.data | Where-Object {$_._id -eq $Wifinetwork.group.wlanconf_id[0]}).x_passphrase
+        $Wifinetwork | Select-object @{n = "SSID"; e = { $_.Name } }, @{n = "Passphrase"; e = { $passphrase } },  @{n = "Access Points"; e = { $uaps.name -join "`n" } }, @{n = "Channel"; e = { $_.group.channel -join ", " } }, @{n = "Usage"; e = { $_.group.usage | Sort-Object -Unique } }, @{n = "Enabled"; e = { $_.group.up | sort-object -Unique } }
     } 
       
     $alarms = (Invoke-RestMethod -Uri "$UnifiBaseUri/s/$($site.name)/stat/alarm" -WebSession $websession).data
