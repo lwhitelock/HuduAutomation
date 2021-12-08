@@ -33,7 +33,7 @@ if ($company) {
 	$ParentAsset = Get-HuduAssets -primary_serial (get-ciminstance win32_bios).serialnumber
 	
 	#If count exists we either got 0 or more than 1 either way lets try to match off name
-	if ($ParentAsset.count){
+	if (($ParentAsset | measure-object).count -ne 1){
 		$ParentAsset = Get-HuduAssets -companyid $company.id -name $ComputerName
 	}
 	
