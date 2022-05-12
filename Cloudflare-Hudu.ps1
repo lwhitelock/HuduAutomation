@@ -1,7 +1,7 @@
 $VaultName = "Your-Key-Vault"
 $CloudFlareHuduToken = Get-AzKeyVaultSecret -VaultName $VaultName -Name "CloudFlareHuduToken" -AsPlainText
-$HuduAPIKey = Get-AzKeyVaultSecret -vaultName $VaultName -name "HuduDevAPIKey" -AsPlainText
-$HuduBaseDomain = Get-AzKeyVaultSecret -vaultName $VaultName -name "HuduDevBaseDomain" -AsPlainText
+$HuduAPIKey = Get-AzKeyVaultSecret -vaultName $VaultName -name "HuduAPIKey" -AsPlainText
+$HuduBaseDomain = Get-AzKeyVaultSecret -vaultName $VaultName -name "HuduBaseDomain" -AsPlainText
 
 $HuduAssetLayoutName = "CloudFlare Zones"
 $BaseURL = 'https://api.cloudflare.com/client/v4'
