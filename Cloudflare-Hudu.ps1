@@ -119,6 +119,12 @@ if (!$Layout) {
 			field_type = 'RichText'
 			show_in_list = 'true'
 			position = 14
+		},
+		@{
+			label = 'BIND File'
+			field_type = 'RichText'
+			show_in_list = 'true'
+			position = 14
 		}
 	)
 	
@@ -159,6 +165,9 @@ foreach ($Zone in $Zones) {
 
                 $CloudflareLink = Get-LinkBlock -URL "https://dash.cloudflare.com/$($Zone.account.id)/$($Zone.name)" -Icon "far fa-cloud" -Title "Open in CloudFlare"
 
+				$Response = Invoke-WebRequest -Headers $AuthHeaders -Uri "$BaseURL/zones/$($Zone.ID)/dns_records/export" -Method Get
+				$BindFile = [System.Text.Encoding]::UTF8.GetString($response.Content)
+
                 $AssetFields = @{
                     'link' = $CloudflareLink
                     'status' 	= $Zone.status
@@ -174,6 +183,7 @@ foreach ($Zone in $Zones) {
                     'firewall_rules'   = $FirewallRules
                     'page_rules'   = $PageRules
                     'zone_settings'   = $ZoneSettingsHTML
+					'bind_file' = "<pre>$BindFile</pre>"
                 }
 
                 $AssetName = $Zone.name
