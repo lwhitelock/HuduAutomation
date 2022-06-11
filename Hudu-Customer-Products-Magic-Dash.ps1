@@ -27,7 +27,7 @@ if (($DetailsLayout | measure-object).count -ne 1) {
     foreach ($Asset in $DetailsAssets) {
 
         # Loop through all the fields on the Asset
-        $Fields = foreach ($field in $DetailsAssets.fields) {
+        $Fields = foreach ($field in $Asset.fields) {
             # Split the field name
             $SplitField = $Field.label -split $SplitChar
 
