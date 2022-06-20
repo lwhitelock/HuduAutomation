@@ -55,9 +55,11 @@ if (($DetailsLayout | measure-object).count -ne 1) {
                     $False {'grey'}
                     default {'grey'}
                 }
-
+                
+                $DashTitle = "$($Asset.company_name) - $Service"
+                
                 $Param = @{
-                    Title = $Service
+                    Title = $DashTitle
                     CompanyName = $Asset.company_name
                     Shade = $Colour
                 }
@@ -78,7 +80,7 @@ if (($DetailsLayout | measure-object).count -ne 1) {
                     $Param['ContentLink'] = $URLField.value
                 }
                 
-                Set-HuduMagicDash @Param
+                $null = Set-HuduMagicDash @Param
 
             } else {
                 Write-Error "No Enabled Field was found"
