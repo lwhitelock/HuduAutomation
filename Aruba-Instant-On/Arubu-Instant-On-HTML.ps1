@@ -3,6 +3,18 @@
 
 $ArubaInstantOnUser = 'api-user@yourdomain.com'
 $ArubaInstantOnPass = 'Make a long randomly generated password for the account that you save securely'
+ReportRoot = "Directory to hold the report directory"
+$ReportFolder = "Directory to place the report files"
+$ReportPath = "$ReportRoot\$ReportFolder"
+
+#Check and create report path
+$FolderExist = Test-Path -Path $ReportPath
+
+#If Folder doesn't exist - Make it
+If ($FolderExist -eq $False){
+	#Create Folder
+	New-Item -Path "$ReportRoot" -Name $ReportFolder -ItemType "directory"
+}
 
 #### Functions ####
 
@@ -164,7 +176,7 @@ foreach ($site in $sites.Elements) {
     # $ClientBlacklist = (Invoke-WebRequest -Method GET -Uri "https://nb.portal.arubainstanton.com/api/sites/$($Site.id)/clientBlacklist" -ContentType $ContentType -Headers $headers).content | ConvertFrom-Json 
     # $applicationCategoryUsageConfiguration = (Invoke-WebRequest -Method GET -Uri "https://nb.portal.arubainstanton.com/api/sites/$($Site.id)/applicationCategoryUsageConfiguration" -ContentType $ContentType -Headers $headers).content | ConvertFrom-Json
 
-    New-HTML -Title 'Aruba Instant On Details' -FilePath "C:\Temp\ArubaION\$($Site.name).html" {
+    New-HTML -Title 'Aruba Instant On Details' -FilePath "$ReportPath\$($Site.name).html" {
         New-HTMLTAb -Name 'Site Summary' {
             New-HTMLSection -HeaderText 'Summary' {
                 $LandingPage | Select-Object -ExcludeProperty kind | convertto-html -as list -Fragment
