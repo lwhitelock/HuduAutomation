@@ -176,7 +176,7 @@ foreach ($job in $BackupJobs) {
 			#Check if there is a detailed report and if there is download it
 			$reportlink = $job.DetailedReportLink
 			if ($reportlink){
-			$detailedReport = Invoke-WebRequest $reportlink
+			$detailedReport = Invoke-WebRequest $reportlink -UseBasicParsing
 			}
 			
 			#Make data human readable
