@@ -163,6 +163,13 @@ foreach ($job in $BackupJobs) {
 	
 	#First lets check for the company
 	$company = Get-HuduCompanies -Name $job.CompanyName
+	
+  	if($company){}
+  	else{
+		$Company = Get-HuduCompanies | where {$_.name -eq $job.CompanyName }
+    	}
+
+	
 	if ($company) {
 			Write-Host "Company $($job.CompanyName) found in Hudu" -ForegroundColor Green		
 			
@@ -248,7 +255,7 @@ foreach ($job in $BackupJobs) {
 				$null = $job_fields.add('error_message', $($processedJob.ErrorMessage).toString())
 			}
 			if ($detailedReport) {
-				$null = $job_fields.add('detailed_report', $($processedJob).toString())
+				$null = $job_fields.add('detailed_report', $($detailedReport).toString())
 			}
 					
 			
