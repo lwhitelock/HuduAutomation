@@ -178,6 +178,10 @@ foreach ($job in $BackupJobs) {
 			if ($reportlink){
 			$detailedReport = Invoke-WebRequest $reportlink -UseBasicParsing
 			}
+			else
+			{
+			$detailedReport = $null
+			}
 			
 			#Make data human readable
 			$DataCopied = $job.DataCopied / 1024 / 1024 / 1024
