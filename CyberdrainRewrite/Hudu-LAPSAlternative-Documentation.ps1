@@ -23,6 +23,13 @@ New-HuduAPIKey $HuduAPIKey
 New-HuduBaseUrl $HuduBaseDomain
 
 $Company = Get-HuduCompanies -name $CompanyName
+
+if($company){}
+else{
+$Company = Get-HuduCompanies | where {$_.name -eq $CompanyName }
+}
+
+
 if ($company) {	
     #This is the data we'll be sending to Hudu
 		
