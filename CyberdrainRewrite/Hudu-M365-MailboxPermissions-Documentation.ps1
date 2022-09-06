@@ -99,7 +99,7 @@ foreach ($customer in $customers) {
 						'primary_smtp_address'	= $mailbox.PrimarySmtpAddress
 				}
 				
-				write-output "Uploading M365 mailbox permissions for $($mailbox.Names) into Hudu"
+				write-output "Uploading M365 mailbox permissions for $($mailbox.Name) into Hudu"
 				$companyid = $hududomain.company_id
 				$AssetName = "$mailbox.Name - Permissions"
 				#Check if there is already an asset	
