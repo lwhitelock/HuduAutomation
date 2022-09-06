@@ -89,40 +89,44 @@ foreach ($customer in $customers) {
 			
 				foreach ($mailbox in $mailboxes) {
 					$AccesPermissions = Get-MailboxPermission -Identity $mailbox.identity | Where-Object { $_.user.tostring() -ne "NT AUTHORITY\SELF" -and $_.IsInherited -eq $false } -erroraction silentlycontinue | Select-Object User, accessrights
-					if ($AccesPermissions) { $HTMLPermissions += $AccesPermissions | convertto-html -frag -PreContent "Permissions on $($mailbox.PrimarySmtpAddress)" | Out-String }
-				}
+					if ($AccesPermissions) 
+                    #Only going to create or update an asset for a mailbox that has custom permissions
+                    { $HTMLPermissions += $AccesPermissions | convertto-html -frag -PreContent "Permissions on $($mailbox.PrimarySmtpAddress)" | Out-String
+                    $AssetFields = @{
+						'mailbox_name' 	= $mailbox.DisplayName
+						'permissions'   = $HTMLPermissions
+						'primary_smtp_address'	= $mailbox.PrimarySmtpAddress
+				    }
+				
+				    write-output "Uploading M365 mailbox permissions for $($mailbox.DisplayName) into Hudu"
+				    $companyid = $hududomain.company_id
+                    $AssetName = "$($mailbox.DisplayName) - Mailbox Permissions"
+                    #Check if there is already an asset	
+                    $Asset = Get-HuduAssets -name $AssetName -companyid $companyid -assetlayoutid $Layout.id
+                    
+                    #If the Asset does not exist, we edit the body to be in the form of a new asset, if not, we just upload.
+                    if (!$Asset) {
+                        Write-Host "Creating new Asset"
+                        $Asset = New-HuduAsset -name $AssetName -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields	
+                    }
+                    else {
+                        Write-Host "Updating Asset"
+                        $Asset = Set-HuduAsset -asset_id $Asset.id -name $AssetName -company_id $companyid -asset_layout_id $layout.id -fields $AssetFields	
+                    }
+                        
+                    $MSOLPrimaryDomain = $null
+                    $MSOLtentantID = $null
+                    $AccesPermissions = $null
+                    $HTMLPermissions = $null
+                    
+                }
+                
+                }
 				Remove-PSSession $session
 			
-				$AssetFields = @{
-						'tenantid' 	= $MSOLtentantID
-						'permissions'   = $HTMLPermissions
-						'tenant_name' 	= $initialdomain.name
-				}
-				
-				write-output "Uploading O365 guest $($guest.userprincipalname) into Hudu"
-				$companyid = $hududomain.company_id
-				$AssetName = "$defaultdomain - Permissions"
-				#Check if there is already an asset	
-				$Asset = Get-HuduAssets -name $AssetName -companyid $companyid -assetlayoutid $Layout.id
-				
-				#If the Asset does not exist, we edit the body to be in the form of a new asset, if not, we just upload.
-				if (!$Asset) {
-					Write-Host "Creating new Asset"
-					$Asset = New-HuduAsset -name $AssetName -company_id $companyid -asset_layout_id $Layout.id -fields $AssetFields	
-				}
-				else {
-					Write-Host "Updating Asset"
-					$Asset = Set-HuduAsset -asset_id $Asset.id -name $AssetName -company_id $companyid -asset_layout_id $layout.id -fields $AssetFields	
-				}
-					
-				$MSOLPrimaryDomain = $null
-				$MSOLtentantID = $null
-				$AccesPermissions = $null
-				$HTMLPermissions = $null
 			
 			} else {
 			write-host "https://$defaultdomain Not found in Hudu. Please add as a website under the relevant customer" -ForegroundColor Red
 		}
 	}
 }
- 
