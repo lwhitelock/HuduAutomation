@@ -4,7 +4,7 @@
 $HuduAPIKey = "abcdefgh12344456778c"
 # Set the base domain of your Hudu instance without a trailing /
 $HuduBaseDomain = "https://your.hudu.domain"
-$HuduAssetLayoutName = "M365 Guest logbook - AutoDoc"
+$HuduAssetLayoutName = "M365 Mailbox Permissions - AutoDoc"
 #####################################################################
 ########################## Azure AD ###########################
 $customerExclude =@("Example Cuystomer 1","Example Customer 2")
@@ -35,13 +35,13 @@ $Layout = Get-HuduAssetLayouts -name $HuduAssetLayoutName
 if (!$Layout) { 
 	$AssetLayoutFields = @(
 		@{
-			label = 'tenantid'
+			label = 'Mailbox Name'
 			field_type = 'Text'
 			show_in_list = 'true'
 			position = 1
 		},
 		@{
-			label = 'Tenant Name'
+			label = 'Primary SMTP Address'
 			field_type = 'Text'
 			show_in_list = 'false'
 			position = 2
@@ -94,14 +94,14 @@ foreach ($customer in $customers) {
 				Remove-PSSession $session
 			
 				$AssetFields = @{
-						'tenantid' 	= $MSOLtentantID
+						'mailbox_name' 	= $mailbox.Name
 						'permissions'   = $HTMLPermissions
-						'tenant_name' 	= $initialdomain.name
+						'primary_smtp_address'	= $mailbox.PrimarySmtpAddress
 				}
 				
-				write-output "Uploading O365 guest $($guest.userprincipalname) into Hudu"
+				write-output "Uploading M365 mailbox permissions for $($mailbox.Names) into Hudu"
 				$companyid = $hududomain.company_id
-				$AssetName = "$defaultdomain - Permissions"
+				$AssetName = "$mailbox.Name - Permissions"
 				#Check if there is already an asset	
 				$Asset = Get-HuduAssets -name $AssetName -companyid $companyid -assetlayoutid $Layout.id
 				
