@@ -11,6 +11,13 @@ $ChangeAdminUsername = $true
 #####################################################################
 
 
+if (Get-PackageProvider -ListAvailable -Name NuGet) {
+    Import-PackageProvider NuGet 
+} else {
+    Install-PackageProvider -Name NuGet -Force
+    Import-PackageProvider NuGet
+}
+
 if (Get-Module -ListAvailable -Name HuduAPI) {
     Import-Module HuduAPI 
 } else {
