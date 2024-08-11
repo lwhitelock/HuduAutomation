@@ -504,7 +504,7 @@ $AssetLayoutFields = @(
 }
 
 
-$Company = Get-HuduCompanies -name $CompanyName
+$Company = Get-HuduCompanies -name $CompanyName.Replace('&','%26')
 if ($company) {	
 	#Upload data to Hudu
 	$Asset = Get-HuduAssets -name $RawAD.ForestName -companyid $company.id -assetlayoutid $layout.id
